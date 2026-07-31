@@ -1,0 +1,11 @@
+{
+  "name": "sdp1617-project-front",
+  "private": true,
+  "packageManager": "pnpm@11.1.2",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "build:web": "pnpm --filter web build",
+    "lint": "pnpm --recursive lint"
+  }
+}
