@@ -31,6 +31,7 @@ export const Popup = ({
 }: PopupProps) => {
   const overlayRoot = useOverlayRoot();
   const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
   // 부모가 매 렌더마다 새 함수를 넘겨도 effect 가 다시 돌지 않도록 최신 값만 ref 에 보관
   const onCancelRef = useRef(onCancel);
@@ -40,16 +41,48 @@ export const Popup = ({
   });
 
   useEffect(() => {
-    if (!isOpen) return;
+    // 오버레이 영역이 준비돼서 확인 버튼이 실제로 그려진 뒤에 실행
+    if (!isOpen || !overlayRoot) return;
 
+    // 팝업을 연 요소를 기억했다가 닫힐 때 포커스를 돌려준다
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     confirmRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancelRef.current();
+      if (e.key === 'Escape') {
+        onCancelRef.current();
+        return;
+      }
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+
+      // Tab / Shift+Tab 포커스가 팝업 밖으로 나가지 않도록 처음과 끝을 이어준다
+      const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (!dialogRef.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, overlayRoot]);
 
   if (!isOpen || !overlayRoot) return null;
 
@@ -59,6 +92,7 @@ export const Popup = ({
       onClick={onCancel}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
