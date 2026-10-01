@@ -43,6 +43,7 @@ export const Input = ({
   onFocus,
   onBlur,
   value,
+  'aria-describedby': ariaDescribedBy,
   ...props
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -50,6 +51,8 @@ export const Input = ({
 
   const hasValue = value !== undefined && String(value).length > 0;
   const isClearVisible = Boolean(onClear) && isFocused && hasValue && !action;
+   // 외부에서 넘긴 설명 ID와 힌트 ID를 둘 다 유지
+  const describedBy = [ariaDescribedBy, hints?.length ? hintId : undefined].filter(Boolean).join(' ') || undefined;
 
   const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
@@ -71,17 +74,17 @@ export const Input = ({
         )}
       >
         <input
+          {...props}
           value={value}
           onFocus={handleFocus}
           onBlur={handleBlur}
           aria-invalid={isError || undefined}
-          aria-describedby={hints?.length ? hintId : undefined}
+          aria-describedby={describedBy}
           className={cn(
             'min-w-0 flex-1 bg-transparent text-16 font-medium text-gray-m-800 outline-none',
             'placeholder:text-gray-m-200',
             className,
           )}
-          {...props}
         />
 
         {isClearVisible && (
