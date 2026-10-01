@@ -1,26 +1,104 @@
 @import "tailwindcss";
+@source "../app";
+@source "../components";
+@source "../hooks";
+@source "../lib";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Funzy 디자인 토큰 (Figma "펀지 최종 9/17" 기준)
+ * Tailwind 기본 팔레트와 글자 크기를 비우고 디자인에 있는 값만 등록한다.
+ * → bg-orange-500 처럼 디자인에 없는 값을 실수로 쓰는 일을 막기 위함
+ */
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Primary Orange */
+  --color-orange: #fc5101;
+  /* Error */
+  --color-error: #e20c0c;
+  /* BG (홈 화면 배경) */
+  --color-cream: #fffcf8;
+
+  /* Mobile Grayscale: 본문 텍스트 등 */
+  --color-gray-m-50: #eaeaea;
+  --color-gray-m-100: #d3d3d3;
+  --color-gray-m-200: #b6b6b6;
+  --color-gray-m-300: #959595;
+  --color-gray-m-400: #787878;
+  --color-gray-m-500: #585858;
+  --color-gray-m-600: #2f2f2f;
+  --color-gray-m-700: #1b1b1b;
+  --color-gray-m-800: #121212;
+
+  /* PC Grayscale: 인풋 테두리, 비활성 버튼, 보조 텍스트 등
+   * Mobile 과 값이 달라서 합치지 않고 피그마 이름 그대로 둔다. */
+  --color-gray-pc-50: #fafafa;
+  --color-gray-pc-100: #f5f5f5;
+  --color-gray-pc-200: #e5e5e5;
+  --color-gray-pc-300: #d4d4d4;
+  --color-gray-pc-400: #a1a1a1;
+  --color-gray-pc-500: #737373;
+  --color-gray-pc-600: #525252;
+  --color-gray-pc-700: #404040;
+  --color-gray-pc-800: #262626;
+  --color-gray-pc-900: #141414;
+
+  /* 글자 크기: 화면에서 실제로 쓰인 크기만. line-height 는 피그마의 normal 과 맞춤 */
+  --text-*: initial;
+  --text-12: 12px;
+  --text-12--line-height: normal;
+  --text-14: 14px;
+  --text-14--line-height: normal;
+  --text-15: 15px;
+  --text-15--line-height: normal;
+  --text-16: 16px;
+  --text-16--line-height: normal;
+  --text-18: 18px;
+  --text-18--line-height: normal;
+  --text-24: 24px;
+  --text-24--line-height: normal;
+
+  /* 라운드 */
+  --radius-chip: 6px;     /* 중복확인 같은 작은 버튼 */
+  --radius-control: 10px; /* 인풋, 버튼 */
+  --radius-popup: 14px;   /* 팝업 */
+  --radius-funzy: 22px;   /* 피그마 변수 "펀지 라운드" */
 }
 
+/* 다른 CSS 변수를 참조하는 토큰은 inline 으로 등록해야 사용 시점에 값이 풀린다 */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Pretendard 는 layout.tsx 의 next/font/local 이 주입 */
+  --font-sans: var(--font-pretendard-loaded), -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 날짜, 영문 이름 등에 쓰이는 Inter. 변수는 layout.tsx 의 next/font 가 주입 */
+  --font-en: var(--font-inter-loaded), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 페이지 좌우 여백: 피그마 402 프레임 안 340 요소 = 31px.
+ * 작은 폰(360px 등)에서는 20px 까지 줄어든다. */
+@utility px-page {
+  padding-inline: clamp(20px, 7.7vw, 31px);
+}
+
+/* 아이폰 노치, 홈 바 영역 피하기 (viewport-fit=cover 와 함께 동작) */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-white font-sans text-gray-m-800 antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
