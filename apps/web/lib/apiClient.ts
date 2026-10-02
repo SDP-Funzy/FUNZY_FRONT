@@ -19,6 +19,7 @@ export const apiClient = createHttpClient({
   baseUrl: API_BASE_URL,
   tokenStore,
   onSessionExpired: () => {
-    // TODO: 로그인 화면이 생기면 이동 처리 (예: window.location.href = '/login')
+    // 토큰을 더 이상 쓸 수 없으니 새로고침하며 로그인 화면으로 (로그인 상태도 처음부터 다시 확인됨)
+    window.location.replace('/login');
   },
 });

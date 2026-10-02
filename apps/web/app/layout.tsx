@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import type { ReactNode } from 'react';
 
+import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AppFrame } from '@/components/layout/AppFrame';
 
 // Pretendard 가변 폰트 (굵기 45~920 을 파일 하나로 지원)
@@ -37,7 +38,9 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html lang="ko" className={`${pretendard.variable} ${inter.variable}`}>
       <body>
-        <AppFrame>{children}</AppFrame>
+        <AppFrame>
+          <AuthProvider>{children}</AuthProvider>
+        </AppFrame>
       </body>
     </html>
   );
