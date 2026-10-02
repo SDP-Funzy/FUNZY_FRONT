@@ -18,12 +18,12 @@ const LAST_INDEX = ONBOARDING_SLIDES.length - 1;
 
 /**
  * 온보딩 슬라이드 (Figma 온보딩 4장)
- * - 스와이프 / 아래 점 클릭 / 좌우 방향키로 이동
+ * - 터치 스와이프 / PC 마우스 드래그 / 아래 점 클릭 / 좌우 방향키로 이동
  * - 버튼은 마지막 장에만 보이고, 나머지 장에서도 자리를 비워둬서 점 위치가 고정된다
  */
 export const OnboardingCarousel = () => {
   const router = useRouter();
-  const { containerRef, activeIndex, handleScroll, scrollToIndex } = useSnapCarousel();
+  const { containerRef, activeIndex, scrollToIndex, containerHandlers } = useSnapCarousel(ONBOARDING_SLIDES.length);
   const isLastSlide = activeIndex === LAST_INDEX;
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -41,10 +41,10 @@ export const OnboardingCarousel = () => {
     <section aria-roledescription="carousel" aria-label="펀지 소개" className="flex flex-1 flex-col">
       <div
         ref={containerRef}
-        onScroll={handleScroll}
+        {...containerHandlers}
         onKeyDown={handleKeyDown}
         tabIndex={0}
-        className="flex flex-1 snap-x snap-mandatory overflow-x-auto overscroll-x-contain outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex flex-1 cursor-grab snap-x snap-mandatory overflow-x-auto overscroll-x-contain outline-none select-none active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {ONBOARDING_SLIDES.map((text, index) => (
           <div
