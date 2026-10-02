@@ -1,11 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { useSnapCarousel } from '@/hooks/common/useSnapCarousel';
 import { cn } from '@/lib/cn';
+import { markOnboardingSeen } from '@/lib/onboardingFlag';
 
 const ONBOARDING_SLIDES = [
   '소비하는 선물에서,\n건네는 마음으로',
@@ -25,6 +27,11 @@ export const OnboardingCarousel = () => {
   const router = useRouter();
   const { containerRef, activeIndex, scrollToIndex, containerHandlers } = useSnapCarousel(ONBOARDING_SLIDES.length);
   const isLastSlide = activeIndex === LAST_INDEX;
+
+  // 마지막 장까지 봤으면 다음부터는 앱을 열 때 온보딩 대신 로그인 화면으로
+  useEffect(() => {
+    if (isLastSlide) markOnboardingSeen();
+  }, [isLastSlide]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'ArrowRight') {
