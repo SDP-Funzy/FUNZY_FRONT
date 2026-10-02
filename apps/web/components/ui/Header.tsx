@@ -15,13 +15,16 @@ type HeaderProps = {
   left?: ReactNode;
   right?: ReactNode;
   className?: string;
+  /** 화면마다 좌우 여백이 달라서 따로 받는다. 기본 21px (예: 홈은 왼쪽 15px, 오른쪽 24px) */
+  paddingClassName?: string;
 };
 
-export const Header = ({ title, left, right, className }: HeaderProps) => {
+export const Header = ({ title, left, right, className, paddingClassName = 'px-[21px]' }: HeaderProps) => {
   return (
     <header
       className={cn(
-        'sticky top-0 z-10 grid h-[60px] shrink-0 grid-cols-[1fr_auto_1fr] items-center px-[21px]',
+        'sticky top-0 z-10 grid h-[60px] shrink-0 grid-cols-[1fr_auto_1fr] items-center',
+        paddingClassName,
         className,
       )}
     >
