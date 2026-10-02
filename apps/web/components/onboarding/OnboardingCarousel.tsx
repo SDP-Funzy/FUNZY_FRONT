@@ -44,7 +44,8 @@ export const OnboardingCarousel = () => {
         {...containerHandlers}
         onKeyDown={handleKeyDown}
         tabIndex={0}
-        className="flex flex-1 cursor-grab snap-x snap-mandatory overflow-x-auto overscroll-x-contain outline-none select-none active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label="소개 슬라이드, 좌우 방향키로 이동"
+        className="flex flex-1 cursor-grab snap-x snap-mandatory overflow-x-auto overscroll-x-contain select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-orange active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {ONBOARDING_SLIDES.map((text, index) => (
           <div
