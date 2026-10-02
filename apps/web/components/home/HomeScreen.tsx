@@ -19,7 +19,7 @@ export const HomeScreen = () => {
       <HomeHeader />
 
       <section className="flex flex-1 flex-col items-center justify-center px-page pb-[60px]">
-        <Image src="/images/envelope-home.png" alt="" width={119} height={86} priority />
+        <Image src="/images/envelope-home.svg" alt="" width={119} height={86} priority />
         <p className="mt-[23px] text-center text-16 leading-[1.55] font-medium text-black">
           소중한 사람에게 내 진심을 담아
           <br />

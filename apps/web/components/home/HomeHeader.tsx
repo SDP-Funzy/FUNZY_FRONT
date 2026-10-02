@@ -22,7 +22,7 @@ export const HomeHeader = () => {
       paddingClassName="pr-[24px] pl-[15px]"
       left={
         <Link href={ROUTES.home} aria-label="홈">
-          <Image src="/images/logo-funzy-small.png" alt="Funzy" width={83} height={56} priority />
+          <Image src="/images/logo-funzy-small.svg" alt="Funzy" width={83} height={56} priority />
         </Link>
       }
       right={
