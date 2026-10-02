@@ -28,6 +28,12 @@ const TOKEN_REISSUE_PATH = '/api/auth/token/reissue';
  */
 const isAccessTokenExpired = (error: ApiError) => error.status === 401;
 
+/**
+ * 재발급 요청에서 refresh token 자체가 거절된 응답 (= 세션을 끝내야 함)
+ * 네트워크 오류(status 0), 5xx, 429 처럼 일시적인 실패는 여기에 해당하지 않는다
+ */
+const isRefreshRejected = (error: ApiError) => error.status === 400 || error.status === 401 || error.status === 403;
+
 const buildUrl = (baseUrl: string, path: string, query?: Record<string, QueryValue>) => {
   const url = new URL(path, baseUrl);
   if (query) {
@@ -104,8 +110,11 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
       });
       await tokenStore.setAccessToken(accessToken);
       return accessToken;
-    } catch {
-      return null;
+    } catch (reissueError) {
+      // refresh token 자체가 거절됨 (만료, 로그아웃·비밀번호 변경으로 폐기) → 다시 로그인해야 함
+      if (reissueError instanceof ApiError && isRefreshRejected(reissueError)) return null;
+      // 네트워크 끊김, 서버 일시 오류 등 → 멀쩡한 토큰을 지우지 않고 에러만 전달
+      throw reissueError;
     }
   };
 
@@ -124,8 +133,10 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
       reissuePromise ??= reissueAccessToken().finally(() => {
         reissuePromise = null;
       });
+      // 재발급이 일시적인 이유로 실패하면 여기서 그 에러가 그대로 던져지고, 토큰은 유지된다
       const newAccessToken = await reissuePromise;
 
+      // refresh token 이 없거나 거절됨 → 세션 종료
       if (!newAccessToken) {
         await expireSession();
         throw error;
