@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PointerEvent, UIEvent } from 'react';
 
 /** 이만큼(슬라이드 폭 대비) 이상 끌어야 다음/이전 장으로 넘어간다 */
@@ -23,7 +23,17 @@ type DragState = {
 export const useSnapCarousel = (slideCount: number) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
+  // 드래그 후 스냅을 다시 켜기로 예약해 둔 작업(scrollend 리스너 또는 타이머)의 취소 함수
+  const cancelRestoreRef = useRef<(() => void) | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const cancelPendingRestore = useCallback(() => {
+    cancelRestoreRef.current?.();
+    cancelRestoreRef.current = null;
+  }, []);
+
+  // 화면을 떠날 때 남아 있는 예약 정리
+  useEffect(() => cancelPendingRestore, [cancelPendingRestore]);
 
   const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
     const { scrollLeft, clientWidth } = e.currentTarget;
@@ -48,6 +58,9 @@ export const useSnapCarousel = (slideCount: number) => {
     const container = containerRef.current;
     if (!container) return;
 
+    // 이전 드래그의 스냅 복원 예약이 남아 있으면, 새 드래그 도중에 스냅이 켜져서 원래 장으로 튕긴다
+    cancelPendingRestore();
+
     dragRef.current = {
       pointerId: e.pointerId,
       startX: e.clientX,
@@ -57,7 +70,7 @@ export const useSnapCarousel = (slideCount: number) => {
     container.setPointerCapture(e.pointerId);
     // 끄는 동안 스냅이 켜져 있으면 손을 따라오지 않고 계속 원래 장으로 튕긴다
     container.style.scrollSnapType = 'none';
-  }, []);
+  }, [cancelPendingRestore]);
 
   const handlePointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
@@ -87,6 +100,7 @@ export const useSnapCarousel = (slideCount: number) => {
       // 목표 위치까지 이동이 끝난 뒤에 스냅을 다시 켠다 (중간에 켜면 엉뚱한 장으로 튈 수 있음)
       const restoreSnap = () => {
         container.style.scrollSnapType = '';
+        cancelRestoreRef.current = null;
       };
       const targetLeft = targetIndex * container.clientWidth;
 
@@ -96,8 +110,10 @@ export const useSnapCarousel = (slideCount: number) => {
       }
       if ('onscrollend' in window) {
         container.addEventListener('scrollend', restoreSnap, { once: true });
+        cancelRestoreRef.current = () => container.removeEventListener('scrollend', restoreSnap);
       } else {
-        setTimeout(restoreSnap, 500);
+        const timerId = setTimeout(restoreSnap, 500);
+        cancelRestoreRef.current = () => clearTimeout(timerId);
       }
       scrollToIndex(targetIndex);
     },
