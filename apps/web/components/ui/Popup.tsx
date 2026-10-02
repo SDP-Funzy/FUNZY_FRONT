@@ -8,6 +8,7 @@ import { useOverlayRoot } from '@/hooks/common/useOverlayRoot';
 
 /**
  * 피그마 팝업 컴포넌트 대응 (예: 로그아웃 확인)
+ * showCancel={false} 로 확인 버튼 하나짜리 안내 팝업으로도 쓴다.
  * AppFrame 의 오버레이 영역에 뜨므로 PC 에서도 402px 프레임 안에서만 딤이 깔린다.
  */
 type PopupProps = {
@@ -15,6 +16,8 @@ type PopupProps = {
   title: string;
   description?: string;
   cancelLabel?: string;
+  /** false 면 취소 버튼을 숨기고 확인 버튼 하나만 보여준다 (안내용 팝업). 기본 true */
+  showCancel?: boolean;
   confirmLabel?: string;
   onCancel: () => void;
   onConfirm: () => void;
@@ -25,6 +28,7 @@ export const Popup = ({
   title,
   description,
   cancelLabel = '취소',
+  showCancel = true,
   confirmLabel = '확인',
   onCancel,
   onConfirm,
@@ -107,9 +111,11 @@ export const Popup = ({
         </div>
 
         <div className="flex items-center gap-[8px]">
-          <Button variant="muted" onClick={onCancel} className="flex-1">
-            {cancelLabel}
-          </Button>
+          {showCancel && (
+            <Button variant="muted" onClick={onCancel} className="flex-1">
+              {cancelLabel}
+            </Button>
+          )}
           <Button ref={confirmRef} variant="primary" onClick={onConfirm} className="flex-1">
             {confirmLabel}
           </Button>
