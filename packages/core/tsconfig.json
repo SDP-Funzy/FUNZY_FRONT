@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    // fetch, Response 등의 타입을 쓰기 위해 DOM 을 포함한다.
+    // 단, core 는 웹·모바일 공용이므로 window, localStorage, document 같은 브라우저 전용 API 는 직접 쓰지 않는다.
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
