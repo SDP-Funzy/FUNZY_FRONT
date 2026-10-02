@@ -109,6 +109,11 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
     }
   };
 
+  const expireSession = async () => {
+    await tokenStore.clear();
+    onSessionExpired?.();
+  };
+
   const request = async <T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> => {
     try {
       return await send<T>(method, path, options);
@@ -122,11 +127,19 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
       const newAccessToken = await reissuePromise;
 
       if (!newAccessToken) {
-        await tokenStore.clear();
-        onSessionExpired?.();
+        await expireSession();
         throw error;
       }
-      return send<T>(method, path, options);
+
+      // 재시도는 한 번만. 새 토큰으로도 거절되면 (탈퇴, 강제 로그아웃 등) 세션을 끝낸다
+      try {
+        return await send<T>(method, path, options);
+      } catch (retryError) {
+        if (retryError instanceof ApiError && isAccessTokenExpired(retryError)) {
+          await expireSession();
+        }
+        throw retryError;
+      }
     }
   };
 
