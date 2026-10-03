@@ -27,9 +27,12 @@ export const CardStrip = () => {
     const item = itemRefs.current[currentIndex];
     if (!container || !item) return;
 
-    // scrollIntoView 는 페이지 전체까지 움직일 수 있어서 썸네일 줄만 직접 스크롤한다
-    const itemLeft = item.offsetLeft;
-    const itemRight = itemLeft + item.offsetWidth;
+    // scrollIntoView 는 페이지 전체까지 움직일 수 있어서 썸네일 줄만 직접 스크롤한다.
+    // 위치는 화면 좌표 차이로 구해서 스크롤 영역 기준 값으로 바꾼다 (offsetLeft 는 다른 조상 기준일 수 있음)
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const itemLeft = itemRect.left - containerRect.left + container.scrollLeft;
+    const itemRight = itemLeft + itemRect.width;
     const viewLeft = container.scrollLeft;
     const viewRight = viewLeft + container.clientWidth;
 
