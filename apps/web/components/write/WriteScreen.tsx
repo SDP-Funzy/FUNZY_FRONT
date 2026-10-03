@@ -2,7 +2,6 @@
 
 import { isHeartCardWritten } from '@sdp/core';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { CardStrip } from '@/components/write/CardStrip';
@@ -13,7 +12,7 @@ import { PageDots } from '@/components/ui/PageDots';
 import { Popup } from '@/components/ui/Popup';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
 
-type PopupState = 'giftCardMissing' | 'emptyCard' | 'sendNotReady' | null;
+type PopupState = 'giftCardMissing' | 'emptyCard' | 'sendNotReady' | 'giftNotReady' | null;
 
 /**
  * 마음카드 작성 화면 (Figma 홈화면 - 마음카드)
@@ -22,7 +21,6 @@ type PopupState = 'giftCardMissing' | 'emptyCard' | 'sendNotReady' | null;
  * 실제 전송과 선물카드 화면은 각각 별도 이슈에서 연결한다.
  */
 export const WriteScreen = () => {
-  const router = useRouter();
   const { cards, currentIndex, goTo } = useWriteDraft();
   const [popup, setPopup] = useState<PopupState>(null);
 
@@ -39,9 +37,13 @@ export const WriteScreen = () => {
     setPopup(hasGiftCard ? 'sendNotReady' : 'giftCardMissing');
   };
 
+  /**
+   * 선물카드 화면으로 이동
+   * TODO: 선물카드 작성 이슈에서 router.push('/write/gift') 로 교체.
+   * 없는 주소로 이동하면 404 화면에서 write layout 이 사라져 작성 중인 마음카드가 날아가므로, 그전까지는 안내만 띄운다.
+   */
   const goToGiftCard = () => {
-    setPopup(null);
-    router.push('/write/gift');
+    setPopup('giftNotReady');
   };
 
   return (
@@ -89,6 +91,15 @@ export const WriteScreen = () => {
         isOpen={popup === 'emptyCard'}
         title="아직 비어 있는 카드가 있어요"
         description="마음카드 내용을 채워주세요."
+        showCancel={false}
+        confirmLabel="확인"
+        onCancel={() => setPopup(null)}
+        onConfirm={() => setPopup(null)}
+      />
+      <Popup
+        isOpen={popup === 'giftNotReady'}
+        title="준비 중이에요"
+        description="선물카드 쓰기는 곧 사용할 수 있어요."
         showCancel={false}
         confirmLabel="확인"
         onCancel={() => setPopup(null)}
