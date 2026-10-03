@@ -2,7 +2,7 @@
 
 import { canAddHeartCard, createHeartCardDraft } from '@sdp/core';
 import type { HeartCardDraft } from '@sdp/core';
-import { createContext, useCallback, useMemo, useReducer, useRef } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 type DraftState = {
@@ -33,8 +33,21 @@ const draftReducer = (state: DraftState, action: DraftAction): DraftState => {
   }
 };
 
+/**
+ * 카드에 고른 사진 (화면 미리보기용)
+ * File 과 미리보기 주소는 브라우저 전용이라 core 의 카드 데이터와 따로 보관한다.
+ * 서버 업로드 후 받은 imageKey 는 API 연동 이슈에서 카드 데이터에 넣는다.
+ */
+export type CardPhoto = {
+  file: File;
+  previewUrl: string;
+};
+
 export type WriteDraftContextValue = DraftState & {
   currentCard: HeartCardDraft;
+  /** 카드 id → 사진 */
+  photos: Record<string, CardPhoto>;
+  setCurrentCardPhoto: (file: File) => void;
   updateCurrentCard: (changes: Partial<Omit<HeartCardDraft, 'id'>>) => void;
   addCard: () => void;
   goTo: (index: number) => void;
@@ -64,15 +77,44 @@ export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
   const addCard = useCallback(() => dispatch({ type: 'addCard', id: createId() }), []);
   const goTo = useCallback((index: number) => dispatch({ type: 'goTo', index }), []);
 
+  const [photos, setPhotos] = useState<Record<string, CardPhoto>>({});
+  const photosRef = useRef(photos);
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  const currentCardId = state.cards[state.currentIndex]!.id;
+
+  const setCurrentCardPhoto = useCallback(
+    (file: File) => {
+      // 미리보기 주소 생성·해제는 상태 업데이트 함수 밖에서 한다 (개발 모드에서 업데이트 함수가 두 번 실행될 수 있음)
+      const previous = photosRef.current[currentCardId];
+      if (previous) URL.revokeObjectURL(previous.previewUrl);
+      const previewUrl = URL.createObjectURL(file);
+      setPhotos((prev) => ({ ...prev, [currentCardId]: { file, previewUrl } }));
+    },
+    [currentCardId],
+  );
+
+  // 편지 쓰기 화면을 떠날 때 남은 미리보기 주소 모두 해제
+  useEffect(
+    () => () => {
+      Object.values(photosRef.current).forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
       currentCard: state.cards[state.currentIndex]!,
+      photos,
+      setCurrentCardPhoto,
       updateCurrentCard,
       addCard,
       goTo,
     }),
-    [state, updateCurrentCard, addCard, goTo],
+    [state, photos, setCurrentCardPhoto, updateCurrentCard, addCard, goTo],
   );
 
   return <WriteDraftContext.Provider value={value}>{children}</WriteDraftContext.Provider>;
