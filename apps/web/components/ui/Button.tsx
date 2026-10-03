@@ -13,6 +13,11 @@ type ButtonVariant = 'primary' | 'accent' | 'muted';
 
 type ButtonProps = ComponentPropsWithRef<'button'> & {
   variant?: ButtonVariant;
+  /**
+   * true(기본)면 부모 폭을 꽉 채운다. 고정 폭 버튼은 false 로 두고 className 으로 폭을 준다.
+   * (w-full 이 켜진 채로 w-[158px] 을 넘기면 CSS 순서상 w-full 이 이겨서 폭이 안 바뀐다)
+   */
+  fullWidth?: boolean;
 };
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
@@ -21,12 +26,13 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   muted: 'bg-gray-pc-300',
 };
 
-export const Button = ({ variant = 'primary', type = 'button', className, ...props }: ButtonProps) => {
+export const Button = ({ variant = 'primary', fullWidth = true, type = 'button', className, ...props }: ButtonProps) => {
   return (
     <button
       type={type}
       className={cn(
-        'flex h-[47px] w-full items-center justify-center rounded-control p-[10px]',
+        'flex h-[47px] items-center justify-center rounded-control p-[10px]',
+        fullWidth && 'w-full',
         'text-16 font-semibold whitespace-nowrap text-white',
         'transition-opacity active:opacity-80',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange',
