@@ -12,3 +12,13 @@ export type { AuthRepository } from './auth/application/AuthRepository';
 export { makeHasSession } from './auth/application/Session';
 export { makeLogout } from './auth/application/Logout';
 export { createHttpAuthRepository } from './auth/infra/HttpAuthRepository';
+
+// heartCard: 마음카드 작성 규칙
+export {
+  HEART_CARD_CATEGORIES,
+  MAX_HEART_CARDS_PER_LETTER,
+  canAddHeartCard,
+  createHeartCardDraft,
+  isHeartCardWritten,
+} from './heartCard/domain/HeartCard';
+export type { HeartCardCategory, HeartCardDraft } from './heartCard/domain/HeartCard';
