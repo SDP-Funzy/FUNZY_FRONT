@@ -11,12 +11,15 @@ type DraftState = {
 };
 
 type DraftAction =
+  | { type: 'reset'; id: string }
   | { type: 'updateCard'; index: number; changes: Partial<Omit<HeartCardDraft, 'id'>> }
   | { type: 'addCard'; id: string }
   | { type: 'goTo'; index: number };
 
 const draftReducer = (state: DraftState, action: DraftAction): DraftState => {
   switch (action.type) {
+    case 'reset':
+      return { cards: [createHeartCardDraft(action.id)], currentIndex: 0 };
     case 'updateCard':
       return {
         ...state,
@@ -48,6 +51,8 @@ export type WriteDraftContextValue = DraftState & {
   /** 카드 id → 사진 */
   photos: Record<string, CardPhoto>;
   setCurrentCardPhoto: (file: File) => void;
+  /** 전송을 마친 뒤 작성 내용을 비운다 (뒤로 가기로 같은 편지를 다시 보내는 일 방지) */
+  reset: () => void;
   updateCurrentCard: (changes: Partial<Omit<HeartCardDraft, 'id'>>) => void;
   addCard: () => void;
   goTo: (index: number) => void;
@@ -96,6 +101,12 @@ export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
     [currentCardId],
   );
 
+  const reset = useCallback(() => {
+    Object.values(photosRef.current).forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    setPhotos({});
+    dispatch({ type: 'reset', id: createId() });
+  }, []);
+
   // 편지 쓰기 화면을 떠날 때 남은 미리보기 주소 모두 해제
   useEffect(
     () => () => {
@@ -110,11 +121,12 @@ export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
       currentCard: state.cards[state.currentIndex]!,
       photos,
       setCurrentCardPhoto,
+      reset,
       updateCurrentCard,
       addCard,
       goTo,
     }),
-    [state, photos, setCurrentCardPhoto, updateCurrentCard, addCard, goTo],
+    [state, photos, setCurrentCardPhoto, reset, updateCurrentCard, addCard, goTo],
   );
 
   return <WriteDraftContext.Provider value={value}>{children}</WriteDraftContext.Provider>;

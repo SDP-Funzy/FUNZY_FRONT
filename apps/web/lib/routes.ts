@@ -8,6 +8,8 @@ export const ROUTES = {
   onboarding: '/onboarding',
   signup: '/signup',
   write: '/write',
+  writePreview: '/write/preview',
+  writeSent: '/write/sent',
   mypage: '/mypage',
   notifications: '/notifications',
 } as const;

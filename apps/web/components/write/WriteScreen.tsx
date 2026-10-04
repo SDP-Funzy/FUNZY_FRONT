@@ -2,6 +2,7 @@
 
 import { isHeartCardWritten } from '@sdp/core';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { CardStrip } from '@/components/write/CardStrip';
@@ -11,16 +12,18 @@ import { Header } from '@/components/ui/Header';
 import { PageDots } from '@/components/ui/PageDots';
 import { Popup } from '@/components/ui/Popup';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
+import { ROUTES } from '@/lib/routes';
 
-type PopupState = 'giftCardMissing' | 'emptyCard' | 'sendNotReady' | 'giftNotReady' | null;
+type PopupState = 'giftCardMissing' | 'emptyCard' | 'giftNotReady' | null;
 
 /**
  * 마음카드 작성 화면 (Figma 홈화면 - 마음카드)
  * - 카드 편집, 카드 추가·넘기기(최대 4장)
- * - 전송하기: 본문이 빈 카드가 있으면 안내, 선물카드가 아직이면 "선물카드가 남았어요" 확인
- * 실제 전송과 선물카드 화면은 각각 별도 이슈에서 연결한다.
+ * - 전송하기: 본문이 빈 카드가 있으면 안내, 선물카드가 아직이면 "선물카드가 남았어요" 확인 → 전송 미리보기
+ * 선물카드 화면은 별도 이슈에서 연결한다.
  */
 export const WriteScreen = () => {
+  const router = useRouter();
   const { cards, currentIndex, goTo } = useWriteDraft();
   const [popup, setPopup] = useState<PopupState>(null);
 
@@ -34,7 +37,11 @@ export const WriteScreen = () => {
       setPopup('emptyCard');
       return;
     }
-    setPopup(hasGiftCard ? 'sendNotReady' : 'giftCardMissing');
+    if (hasGiftCard) {
+      router.push(ROUTES.writePreview);
+      return;
+    }
+    setPopup('giftCardMissing');
   };
 
   /**
@@ -85,7 +92,10 @@ export const WriteScreen = () => {
         cancelLabel="선물카드 쓰기"
         confirmLabel="전송하기"
         onCancel={goToGiftCard}
-        onConfirm={() => setPopup('sendNotReady')}
+        onConfirm={() => {
+          setPopup(null);
+          router.push(ROUTES.writePreview);
+        }}
       />
       <Popup
         isOpen={popup === 'emptyCard'}
@@ -100,15 +110,6 @@ export const WriteScreen = () => {
         isOpen={popup === 'giftNotReady'}
         title="준비 중이에요"
         description="선물카드 쓰기는 곧 사용할 수 있어요."
-        showCancel={false}
-        confirmLabel="확인"
-        onCancel={() => setPopup(null)}
-        onConfirm={() => setPopup(null)}
-      />
-      <Popup
-        isOpen={popup === 'sendNotReady'}
-        title="준비 중이에요"
-        description="편지 전송은 서버 연동 후 사용할 수 있어요."
         showCancel={false}
         confirmLabel="확인"
         onCancel={() => setPopup(null)}
