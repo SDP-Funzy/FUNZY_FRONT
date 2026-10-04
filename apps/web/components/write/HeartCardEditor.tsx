@@ -3,16 +3,8 @@
 import { CategorySelect } from '@/components/write/CategorySelect';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
 import { cn } from '@/lib/cn';
+import { formatDotDate } from '@/lib/date';
 
-/**
- * 오늘 날짜 (보내는 날)
- * 이 화면은 로그인 확인 후 브라우저에서만 그려지므로(AuthGuard) 서버·브라우저 시간대 차이로 어긋날 일이 없다.
- */
-const formatToday = () => {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())}`;
-};
 
 const ARROW_BUTTON_CLASS =
   'flex size-[24px] items-center justify-center disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-orange';
@@ -81,7 +73,7 @@ export const HeartCardEditor = () => {
         <button type="button" aria-label="이전 카드" disabled={isFirst} onClick={() => goTo(currentIndex - 1)} className={ARROW_BUTTON_CLASS}>
           <img src="/icons/chevron-left.svg" alt="" className="block" />
         </button>
-        <span className="font-en text-12 font-medium tracking-[-0.3px] text-gray-m-800">{formatToday()}</span>
+        <span className="font-en text-12 font-medium tracking-[-0.3px] text-gray-m-800">{formatDotDate(new Date())}</span>
         <button type="button" aria-label="다음 카드" disabled={isLast} onClick={() => goTo(currentIndex + 1)} className={ARROW_BUTTON_CLASS}>
           <img src="/icons/chevron-left.svg" alt="" className={cn('block -scale-x-100')} />
         </button>
