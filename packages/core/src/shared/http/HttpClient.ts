@@ -1,4 +1,4 @@
-import type { TokenStore } from '../storage/TokenStore';
+import type { AuthTokens, TokenStore } from '../storage/TokenStore';
 import { ApiError, NETWORK_ERROR_CODE, UNKNOWN_ERROR_CODE } from './ApiError';
 import type { ApiResponse } from './ApiResponse';
 
@@ -22,11 +22,16 @@ type HttpClientConfig = {
 
 const TOKEN_REISSUE_PATH = '/api/auth/token/reissue';
 
+/** access token 만료 응답 (재발급 후 다시 시도할 대상) */
+const ACCESS_TOKEN_EXPIRED_CODE = 'AUTH_004';
+const isAccessTokenExpired = (error: ApiError) => error.status === 401 && error.code === ACCESS_TOKEN_EXPIRED_CODE;
+
 /**
- * access token 만료로 판단할 응답
- * TODO: 백엔드에서 만료 시 status / code 를 알려주면 그 값으로 좁힐 것 (지금은 401 전체)
+ * 토큰 자체가 무효인 응답 (재발급으로도 살릴 수 없어 세션을 끝낸다)
+ * AUTH_003: 유효하지 않은 토큰 / AUTH_005: 폐기된 세션 (로그아웃·비밀번호 변경·탈퇴, 교체된 토큰 재사용)
  */
-const isAccessTokenExpired = (error: ApiError) => error.status === 401;
+const SESSION_INVALID_CODES = ['AUTH_003', 'AUTH_005'];
+const isSessionInvalid = (error: ApiError) => error.status === 401 && SESSION_INVALID_CODES.includes(error.code);
 
 /**
  * 재발급 요청에서 refresh token 자체가 거절된 응답 (= 세션을 끝내야 함)
@@ -87,7 +92,7 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
 
     let response: Response;
     try {
-        response = await fetch(buildUrl(baseUrl, path, query), {
+      response = await fetch(buildUrl(baseUrl, path, query), {
         method,
         headers,
         body: body === undefined ? undefined : JSON.stringify(body),
@@ -107,12 +112,13 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
     if (!refreshToken) return null;
 
     try {
-      const { accessToken } = await send<{ accessToken: string }>('POST', TOKEN_REISSUE_PATH, {
+      // 재발급할 때마다 refresh token 도 새로 온다 (rotation). 예전 것은 서버에서 폐기되므로 둘 다 저장해야 한다
+      const tokens = await send<AuthTokens>('POST', TOKEN_REISSUE_PATH, {
         body: { refreshToken },
         auth: false,
       });
-      await tokenStore.setAccessToken(accessToken);
-      return accessToken;
+      await tokenStore.setTokens(tokens);
+      return tokens.accessToken;
     } catch (reissueError) {
       // refresh token 자체가 거절됨 (만료, 로그아웃·비밀번호 변경으로 폐기) → 다시 로그인해야 함
       if (reissueError instanceof ApiError && isRefreshRejected(reissueError)) return null;
@@ -130,7 +136,12 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
     try {
       return await send<T>(method, path, options);
     } catch (error) {
-      const canRetry = options.auth !== false && error instanceof ApiError && isAccessTokenExpired(error);
+      const isAuthRequest = options.auth !== false;
+      if (isAuthRequest && error instanceof ApiError && isSessionInvalid(error)) {
+        await expireSession();
+        throw error;
+      }
+      const canRetry = isAuthRequest && error instanceof ApiError && isAccessTokenExpired(error);
       if (!canRetry) throw error;
 
       reissuePromise ??= reissueAccessToken().finally(() => {
@@ -149,7 +160,7 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
       try {
         return await send<T>(method, path, options);
       } catch (retryError) {
-        if (retryError instanceof ApiError && isAccessTokenExpired(retryError)) {
+        if (retryError instanceof ApiError && (isAccessTokenExpired(retryError) || isSessionInvalid(retryError))) {
           await expireSession();
         }
         throw retryError;
