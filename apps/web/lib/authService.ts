@@ -1,4 +1,4 @@
-import { createHttpAuthRepository, makeHasSession, makeLogout } from '@sdp/core';
+import { createHttpAuthRepository, makeHasSession, makeLogin, makeLogout } from '@sdp/core';
 
 import { apiClient, tokenStore } from '@/lib/apiClient';
 
@@ -9,4 +9,5 @@ import { apiClient, tokenStore } from '@/lib/apiClient';
 const authRepository = createHttpAuthRepository(apiClient);
 
 export const hasSession = makeHasSession(tokenStore);
+export const login = makeLogin({ authRepository, tokenStore });
 export const logout = makeLogout({ authRepository, tokenStore });
