@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
 import { ROUTES } from '@/lib/routes';
 
 /** 봉투가 닫히는 장면 (Figma 전송 완료 3장면) */
 const ENVELOPE_FRAMES = ['/images/envelope-sent-1.svg', '/images/envelope-sent-2.svg', '/images/envelope-sent-3.svg'];
-const FRAME_INTERVAL_MS = 450;
+/** 장면이 바뀌는 간격과, 그중 서서히 겹치며 넘어가는 시간 */
+const FRAME_INTERVAL_MS = 550;
 
 /**
  * 전송 완료 화면 (Figma "마음을 보냈어요!", 주석: 모션)
@@ -45,14 +47,18 @@ export const SentScreen = () => {
   return (
     <div className="flex flex-1 flex-col items-center bg-cream px-page">
       <div className="flex flex-1 flex-col items-center justify-center">
-        {/* 세 장면을 겹쳐 두고 보이는 것만 바꿔서, 장면이 바뀔 때 이미지를 새로 불러오며 깜빡이지 않게 한다 */}
+        {/* 세 장면을 겹쳐 두고 투명도만 바꾼다. 투명도가 서서히 바뀌면서 이전 장면은 사라지고 다음 장면이 나타나
+            장면 사이가 자연스럽게 이어진다 (이미지를 새로 불러오지 않아 깜빡임도 없음) */}
         <div className="relative h-[139px] w-[131px]" role="img" aria-label="편지가 봉투에 담겼어요">
           {ENVELOPE_FRAMES.map((src, index) => (
             <img
               key={src}
               src={src}
               alt=""
-              className={index === frameIndex ? 'absolute inset-0 block size-full' : 'absolute inset-0 block size-full opacity-0'}
+              className={cn(
+                'absolute inset-0 block size-full transition-opacity duration-300 ease-in-out motion-reduce:transition-none',
+                index === frameIndex ? 'opacity-100' : 'opacity-0',
+              )}
             />
           ))}
         </div>
