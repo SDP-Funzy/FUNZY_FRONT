@@ -5,6 +5,10 @@
 export const ROUTES = {
   home: '/home',
   login: '/login',
+  passwordForgot: '/password/forgot',
+  passwordReset: '/password/reset',
+  accountUnlockRequest: '/account/unlock-request',
+  accountUnlock: '/account/unlock',
   onboarding: '/onboarding',
   signup: '/signup',
   write: '/write',

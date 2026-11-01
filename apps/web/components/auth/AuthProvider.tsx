@@ -11,6 +11,8 @@ export type AuthContextValue = {
   status: AuthStatus;
   /** 로그인 성공 후 호출 (토큰 저장은 로그인 유스케이스가 함) */
   markLoggedIn: () => void;
+  /** 복구 API가 세션을 종료하고 저장된 토큰을 지운 뒤 호출 */
+  markLoggedOut: () => void;
   logout: () => Promise<void>;
 };
 
@@ -34,13 +36,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const markLoggedIn = useCallback(() => setStatus('authenticated'), []);
+  const markLoggedOut = useCallback(() => setStatus('unauthenticated'), []);
 
   const logout = useCallback(async () => {
     await logoutUseCase();
     setStatus('unauthenticated');
   }, []);
 
-  const value = useMemo(() => ({ status, markLoggedIn, logout }), [status, markLoggedIn, logout]);
+  const value = useMemo(() => ({ status, markLoggedIn, markLoggedOut, logout }), [status, markLoggedIn, markLoggedOut, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

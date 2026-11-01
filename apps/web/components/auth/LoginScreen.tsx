@@ -3,6 +3,7 @@
 import { isApiError, LOGIN_ERROR_CODES, NETWORK_ERROR_CODE } from '@sdp/core';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 
@@ -11,10 +12,12 @@ import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { Popup } from '@/components/ui/Popup';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { login } from '@/lib/authService';
+import { ROUTES } from '@/lib/routes';
 
 type NoticeMessage = {
   title: string;
   description: string;
+  recoveryPath?: string;
 };
 
 const COMING_SOON: NoticeMessage = {
@@ -31,9 +34,10 @@ const NETWORK_FAILED: NoticeMessage = {
  * 로그인 화면 (Figma 로그인 주황 버전)
  * - 아이디(닉네임) + 비밀번호로 로그인. 성공하면 로그인 상태가 되고, 화면 묶음의 AuthGuard 가 홈으로 보낸다
  * - 실패: 틀림(AUTH_001)은 입력칸 아래 문구, 잠김(AUTH_010)·네트워크 오류는 팝업
- * - 아이디 찾기, 비밀번호 찾기, 소셜 로그인은 준비 중 안내
+ * - 비밀번호 찾기·잠금 해제는 복구 화면으로 연결. 아이디 찾기·소셜 로그인은 준비 중 안내
  */
 export const LoginScreen = () => {
+  const router = useRouter();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [notice, setNotice] = useState<NoticeMessage | null>(null);
@@ -56,7 +60,7 @@ export const LoginScreen = () => {
       if (isApiError(error) && error.code === LOGIN_ERROR_CODES.invalidCredentials) {
         setErrorMessage(error.message);
       } else if (isApiError(error) && error.code === LOGIN_ERROR_CODES.locked) {
-        setNotice({ title: '로그인이 잠겼어요', description: error.message });
+        setNotice({ title: '로그인이 잠겼어요', description: error.message, recoveryPath: ROUTES.accountUnlockRequest });
       } else if (isApiError(error) && error.code === NETWORK_ERROR_CODE) {
         setNotice(NETWORK_FAILED);
       } else {
@@ -127,9 +131,9 @@ export const LoginScreen = () => {
           아이디 찾기
         </button>
         <span aria-hidden className="h-[14px] w-px bg-gray-m-100" />
-        <button type="button" onClick={showComingSoon}>
+        <Link href={ROUTES.passwordForgot}>
           비밀번호 찾기
-        </button>
+        </Link>
       </div>
 
       <p className="mt-[11px] flex items-center gap-[13px] text-[10px] leading-[1.5]">
@@ -153,10 +157,13 @@ export const LoginScreen = () => {
         isOpen={notice !== null}
         title={notice?.title ?? ''}
         description={notice?.description}
-        confirmLabel="확인"
+        confirmLabel={notice?.recoveryPath ? '잠금 해제하기' : '확인'}
         showCancel={false}
         onCancel={() => setNotice(null)}
-        onConfirm={() => setNotice(null)}
+        onConfirm={() => {
+          if (notice?.recoveryPath) router.push(notice.recoveryPath);
+          setNotice(null);
+        }}
       />
     </div>
   );
