@@ -13,6 +13,10 @@ export { LOGIN_ERROR_CODES, makeLogin } from './auth/application/Login';
 export { makeHasSession } from './auth/application/Session';
 export { makeLogout } from './auth/application/Logout';
 export { createHttpAuthRepository } from './auth/infra/HttpAuthRepository';
+export type { SignupInput, SignupRepository } from './auth/application/SignupRepository';
+export type { SignupDetails, SignupState } from './auth/application/Signup';
+export { SIGNUP_ERROR_CODES, createSignupFlow } from './auth/application/Signup';
+export { createHttpSignupRepository } from './auth/infra/HttpSignupRepository';
 
 // heartCard: 마음카드 작성 규칙
 export {
