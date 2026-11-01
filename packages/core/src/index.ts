@@ -23,3 +23,8 @@ export {
   isHeartCardWritten,
 } from './heartCard/domain/HeartCard';
 export type { HeartCardCategory, HeartCardDraft } from './heartCard/domain/HeartCard';
+
+// auth: 비밀번호 재설정·계정 잠금 해제
+export type { AccountRecoveryRepository, PasswordResetInput } from './auth/application/AccountRecovery';
+export { makeAccountRecovery, RECOVERY_ERROR_CODES, recoveryNeedsNewLink } from './auth/application/AccountRecovery';
+export { createHttpAccountRecoveryRepository } from './auth/infra/HttpAccountRecoveryRepository';
