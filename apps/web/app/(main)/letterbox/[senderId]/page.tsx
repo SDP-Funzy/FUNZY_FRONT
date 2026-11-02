@@ -1,6 +1,6 @@
-import { LetterboxScreen } from '@/components/letterbox/LetterboxScreen';
+import { ReceivedLetterCardsScreen } from '@/components/letterbox/ReceivedLetterCardsScreen';
 
 export default async function SenderLettersPage({ params }: { params: Promise<{ senderId: string }> }) {
   const { senderId } = await params;
-  return <LetterboxScreen senderId={senderId} />;
+  return <ReceivedLetterCardsScreen id={senderId} />;
 }

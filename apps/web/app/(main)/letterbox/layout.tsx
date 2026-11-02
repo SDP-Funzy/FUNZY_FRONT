@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { LetterboxPreviewProvider } from '@/components/letterbox/LetterboxPreviewProvider';
+import { LetterboxApiProvider } from '@/components/letterbox/LetterboxApiProvider';
 
 export default function LetterboxLayout({ children }: { children: ReactNode }) {
-  return <LetterboxPreviewProvider>{children}</LetterboxPreviewProvider>;
+  return <LetterboxApiProvider>{children}</LetterboxApiProvider>;
 }

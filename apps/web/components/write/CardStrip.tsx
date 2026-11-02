@@ -22,7 +22,7 @@ const SCROLL_MARGIN = 8;
  */
 
 const PHOTO_ERROR_MESSAGES = {
-  notImage: '사진 파일만 올릴 수 있어요.',
+  notImage: 'JPG, PNG, WebP 사진만 올릴 수 있어요.',
   tooLarge: `${MAX_CARD_PHOTO_BYTES / 1024 / 1024}MB 이하의 사진만 올릴 수 있어요.`,
 } as const;
 export const CardStrip = () => {
@@ -79,7 +79,7 @@ export const CardStrip = () => {
       >
         <img src="/icons/camera.svg" alt="" className="block" />
       </button>
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
 
       {/* 위쪽 여백(17px)을 스크롤 영역 안에 둬야 주황 삼각형이 잘리지 않는다 */}
       <div

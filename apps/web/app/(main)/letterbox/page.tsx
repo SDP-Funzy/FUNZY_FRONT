@@ -1,3 +1,3 @@
-import { LetterboxScreen } from '@/components/letterbox/LetterboxScreen';
+import { ReceivedLetterListScreen } from '@/components/letterbox/ReceivedLetterListScreen';
 
-export default function LetterboxPage() { return <LetterboxScreen />; }
+export default function LetterboxPage() { return <ReceivedLetterListScreen />; }

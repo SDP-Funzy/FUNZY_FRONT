@@ -2,8 +2,10 @@
 
 import { canAddHeartCard, createHeartCardDraft } from '@sdp/core';
 import type { HeartCardDraft } from '@sdp/core';
+import type { SentLetterReceipt } from '@sdp/core';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { newLetterDelivery } from '@/lib/letterService';
 
 type DraftState = {
   cards: HeartCardDraft[];
@@ -23,7 +25,7 @@ const draftReducer = (state: DraftState, action: DraftAction): DraftState => {
     case 'updateCard':
       return {
         ...state,
-        cards: state.cards.map((card, i) => (i === action.index ? { ...card, ...action.changes } : card)),
+        cards: state.cards.map((card, i) => ({ ...card, ...(action.changes.to === undefined ? {} : { to: action.changes.to }), ...(action.changes.from === undefined ? {} : { from: action.changes.from }), ...(i === action.index ? action.changes : {}) })),
       };
     case 'addCard': {
       if (!canAddHeartCard(state.cards.length)) return state;
@@ -56,6 +58,8 @@ export type WriteDraftContextValue = DraftState & {
   updateCurrentCard: (changes: Partial<Omit<HeartCardDraft, 'id'>>) => void;
   addCard: () => void;
   goTo: (index: number) => void;
+  sendLetter: () => Promise<SentLetterReceipt>;
+  sentReceipt: SentLetterReceipt | null;
 };
 
 export const WriteDraftContext = createContext<WriteDraftContextValue | null>(null);
@@ -66,6 +70,8 @@ export const WriteDraftContext = createContext<WriteDraftContextValue | null>(nu
  * 편지 쓰기 화면을 완전히 벗어나면 사라진다.
  */
 export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
+  const delivery = useRef<ReturnType<typeof newLetterDelivery> | null>(null);
+  const [sentReceipt, setSentReceipt] = useState<SentLetterReceipt | null>(null);
   // crypto.randomUUID 는 https 에서만 동작해서 간단한 번호로 카드 id 를 만든다
   const nextIdRef = useRef(1);
   const createId = () => `card-${nextIdRef.current++}`;
@@ -102,10 +108,20 @@ export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const reset = useCallback(() => {
+    delivery.current = null;
     Object.values(photosRef.current).forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     setPhotos({});
     dispatch({ type: 'reset', id: createId() });
   }, []);
+
+  const sendLetter = useCallback(async () => {
+    delivery.current ??= newLetterDelivery();
+    const receipt = await delivery.current.send(state.cards.map(card => {
+      const file = photos[card.id]?.file;
+      return { ...card, ...(file ? { photo: { name: file.name, type: file.type, size: file.size, body: file } } : {}) };
+    }));
+    setSentReceipt(receipt); return receipt;
+  }, [state.cards, photos]);
 
   // 편지 쓰기 화면을 떠날 때 남은 미리보기 주소 모두 해제
   useEffect(
@@ -125,8 +141,10 @@ export const WriteDraftProvider = ({ children }: { children: ReactNode }) => {
       updateCurrentCard,
       addCard,
       goTo,
+      sendLetter,
+      sentReceipt,
     }),
-    [state, photos, setCurrentCardPhoto, reset, updateCurrentCard, addCard, goTo],
+    [state, photos, setCurrentCardPhoto, reset, updateCurrentCard, addCard, goTo, sendLetter, sentReceipt],
   );
 
   return <WriteDraftContext.Provider value={value}>{children}</WriteDraftContext.Provider>;

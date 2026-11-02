@@ -4,6 +4,7 @@ import { formatNotificationTime, getNotificationLabel, getNotificationTarget } f
 import type { NotificationItem } from '@sdp/core';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -23,6 +24,7 @@ const EnvelopeIcon = () => (
 );
 
 export const NotificationsScreen = () => {
+  const router = useRouter();
   const { items, loading, loaded, error, pendingIds, readErrors, store } = useNotifications();
   const [now, setNow] = useState(() => Date.now());
   const [notice, setNotice] = useState<string | null>(null);
@@ -36,7 +38,8 @@ export const NotificationsScreen = () => {
   const openItem = async (item: NotificationItem) => {
     if (!(await store.markRead(item.id))) return;
     const target = getNotificationTarget(item);
-    if (target) setNotice(`${TARGET_LABELS[target.kind]} 화면은 준비 중이에요.`);
+    if (target?.kind === 'letter') router.push(`/letterbox/${target.id}${item.type === 'GIFT_SELECTED' ? '/gifts/result' : ''}`);
+    else if (target) setNotice(`${TARGET_LABELS[target.kind]} 화면은 준비 중이에요.`);
   };
   const refresh = () => { void store.load(); void store.refreshUnread(); };
 

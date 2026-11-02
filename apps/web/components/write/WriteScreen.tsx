@@ -36,7 +36,7 @@ export const WriteScreen = () => {
       setPopup('emptyCard');
       return;
     }
-    if (gift.isComplete) {
+    if (gift.hasContent) {
       router.push(ROUTES.writePreview);
       return;
     }

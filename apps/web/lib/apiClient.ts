@@ -1,6 +1,7 @@
 import { createHttpClient, createTokenStore } from '@sdp/core';
 
 import { browserStorage } from '@/lib/browserStorage';
+import { authPathWithReturn, getSafeSharedReturnTo } from '@/lib/sharedLetterReturn';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -20,6 +21,6 @@ export const apiClient = createHttpClient({
   tokenStore,
   onSessionExpired: () => {
     // 토큰을 더 이상 쓸 수 없으니 새로고침하며 로그인 화면으로 (로그인 상태도 처음부터 다시 확인됨)
-    window.location.replace('/login');
+    window.location.replace(authPathWithReturn('/login', getSafeSharedReturnTo(window.location.pathname + window.location.search)));
   },
 });
