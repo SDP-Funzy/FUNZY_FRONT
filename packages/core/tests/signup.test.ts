@@ -195,6 +195,19 @@ test('72바이트 초과 비밀번호는 서버로 보내거나 자르지 않는
   assert.equal(await flow.submit(details), true);
 });
 
+test('입력을 수정할 때 오류만 지우고 인증·아이디 확인 상태는 유지한다', async () => {
+  const { flow, submitted } = setup();
+  await prepare(flow);
+  assert.equal(await flow.submit({ ...details, passwordConfirm: 'Different1!' }), false);
+  assert.equal(flow.getSnapshot().error?.code, 'AUTH_008');
+  flow.clearError();
+  assert.equal(flow.getSnapshot().error, null);
+  assert.equal(flow.getSnapshot().emailVerified, true);
+  assert.equal(flow.getSnapshot().nicknameAvailable, true);
+  assert.equal(await flow.submit(details), true);
+  assert.equal(submitted.length, 1);
+});
+
 test('네 API의 HTTP 계약 및 기존 토큰 미첨부를 검증한다', async (t) => {
   const calls: { url: URL; options: RequestInit }[] = [];
   t.mock.method(globalThis, 'fetch', async (url: string, options: RequestInit) => {
