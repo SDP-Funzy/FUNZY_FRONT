@@ -32,3 +32,10 @@ export type { HeartCardCategory, HeartCardDraft } from './heartCard/domain/Heart
 export type { AccountRecoveryRepository, PasswordResetInput } from './auth/application/AccountRecovery';
 export { makeAccountRecovery, RECOVERY_ERROR_CODES, recoveryNeedsNewLink } from './auth/application/AccountRecovery';
 export { createHttpAccountRecoveryRepository } from './auth/infra/HttpAccountRecoveryRepository';
+
+// notification: 알림 목록·읽음·읽지 않은 개수
+export type { NotificationItem, NotificationRepository, NotificationTarget } from './notification/Notification';
+export { getNotificationTarget, getNotificationLabel, formatNotificationTime } from './notification/Notification';
+export { createHttpNotificationRepository } from './notification/HttpNotificationRepository';
+export { createNotificationStore } from './notification/NotificationStore';
+export type { NotificationState } from './notification/NotificationStore';

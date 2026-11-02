@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AppFrame } from '@/components/layout/AppFrame';
+import { NotificationsProvider } from '@/components/notifications/NotificationsProvider';
 
 // Pretendard 가변 폰트 (굵기 45~920 을 파일 하나로 지원)
 const pretendard = localFont({
@@ -39,7 +40,9 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
     <html lang="ko" className={`${pretendard.variable} ${inter.variable}`}>
       <body>
         <AppFrame>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <NotificationsProvider>{children}</NotificationsProvider>
+          </AuthProvider>
         </AppFrame>
       </body>
     </html>
