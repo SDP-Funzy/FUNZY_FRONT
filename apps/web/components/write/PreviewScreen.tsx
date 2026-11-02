@@ -6,10 +6,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { HeartCardPreview } from '@/components/write/HeartCardPreview';
+import { GiftCardPreview } from '@/components/write/GiftCardPreview';
 import { Button } from '@/components/ui/Button';
 import { Header } from '@/components/ui/Header';
 import { Popup } from '@/components/ui/Popup';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
+import { useGiftDraft } from '@/hooks/write/useGiftDraft';
 import { formatDotDate } from '@/lib/date';
 import { ROUTES } from '@/lib/routes';
 
@@ -20,15 +22,19 @@ import { ROUTES } from '@/lib/routes';
 export const PreviewScreen = () => {
   const router = useRouter();
   const { cards, photos } = useWriteDraft();
+  const gift = useGiftDraft();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const dateLabel = formatDotDate(new Date());
 
   // 새로고침 등으로 작성 내용이 사라졌으면 미리볼 게 없으니 작성 화면으로
-  const hasContent = cards.some(isHeartCardWritten);
+  const hasContent = cards.length > 0 && cards.every(isHeartCardWritten);
+  const incompleteGift = gift.hasContent && !gift.isComplete;
+  const giftCount = gift.isComplete ? gift.cards.length : 0;
   useEffect(() => {
     if (!hasContent) router.replace(ROUTES.write);
-  }, [hasContent, router]);
+    else if (incompleteGift) router.replace(ROUTES.writeGift);
+  }, [hasContent, incompleteGift, router]);
 
   const handleSend = async () => {
     setIsSending(true);
@@ -39,7 +45,7 @@ export const PreviewScreen = () => {
     router.replace(ROUTES.writeSent);
   };
 
-  if (!hasContent) return null;
+  if (!hasContent || incompleteGift) return null;
 
   return (
     <div className="flex flex-1 flex-col bg-cream">
@@ -50,16 +56,21 @@ export const PreviewScreen = () => {
       />
 
       <section
-        aria-label="보낼 마음카드 미리보기"
+        aria-label="보낼 마음카드와 선물카드 미리보기"
         className="mt-[34px] flex snap-x snap-mandatory gap-[16px] overflow-x-auto px-[48px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {cards.map((card, index) => (
           <div
             key={card.id}
-            aria-label={`${index + 1} / ${cards.length}`}
+            aria-label={`${index + 1} / ${cards.length + giftCount}`}
             className="w-[306px] max-w-full shrink-0 snap-center"
           >
             <HeartCardPreview card={card} photoUrl={photos[card.id]?.previewUrl} dateLabel={dateLabel} />
+          </div>
+        ))}
+        {gift.isComplete && gift.cards.map((card, index) => (
+          <div key={card.id} aria-label={`${cards.length + index + 1} / ${cards.length + giftCount}`} className="w-[306px] max-w-full shrink-0 snap-center">
+            <GiftCardPreview card={card} photoUrl={gift.photos[card.id]?.url} date={dateLabel} index={index} />
           </div>
         ))}
       </section>

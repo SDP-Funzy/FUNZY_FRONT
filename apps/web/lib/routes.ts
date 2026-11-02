@@ -12,6 +12,7 @@ export const ROUTES = {
   onboarding: '/onboarding',
   signup: '/signup',
   write: '/write',
+  writeGift: '/write/gift',
   writePreview: '/write/preview',
   writeSent: '/write/sent',
   mypage: '/mypage',
