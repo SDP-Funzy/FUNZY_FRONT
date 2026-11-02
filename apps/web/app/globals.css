@@ -101,4 +101,17 @@
   button:not(:disabled) {
     cursor: pointer;
   }
+
+  /* 스크롤 동작은 유지하고 앱 안의 스크롤바와 예약 공간만 숨긴다. */
+  html, body, .app-frame, .app-frame * {
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .app-frame::-webkit-scrollbar,
+  .app-frame *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
