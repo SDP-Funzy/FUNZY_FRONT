@@ -50,3 +50,5 @@ export { createHttpArchiveRepository, archiveCommentText } from './archive/HttpA
 export { createArchiveCommentsStore } from './archive/ArchiveCommentsStore';
 export type { MemberProfile, ConnectedAccounts, AccountProvider } from './mypage/Profile';
 export { createHttpProfileRepository } from './mypage/Profile';
+export type { FriendMember, FollowStatus, FriendsRepository } from './friends/Friends';
+export { createHttpFriendsRepository, normalizeFriendSearch, createFriendRequest } from './friends/Friends';
