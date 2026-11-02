@@ -1,6 +1,6 @@
 /**
  * 화면 주소 모음
- * 아직 화면이 없는 주소(write, mypage, notifications)는 해당 이슈에서 만들 예정
+ * 각 화면에서는 이 주소를 재사용한다.
  */
 export const ROUTES = {
   home: '/home',
@@ -16,5 +16,10 @@ export const ROUTES = {
   writePreview: '/write/preview',
   writeSent: '/write/sent',
   mypage: '/mypage',
+  mypageProfile: '/mypage/profile',
+  mypagePassword: '/mypage/password',
+  mypageConnections: '/mypage/connections',
+  mypageNotifications: '/mypage/notifications',
+  mypagePolicies: '/mypage/policies',
   notifications: '/notifications',
 } as const;
