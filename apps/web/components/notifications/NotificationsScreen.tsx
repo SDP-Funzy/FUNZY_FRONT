@@ -39,6 +39,7 @@ export const NotificationsScreen = () => {
     if (!(await store.markRead(item.id))) return;
     const target = getNotificationTarget(item);
     if (target?.kind === 'letter') router.push(`/letterbox/${target.id}${item.type === 'GIFT_SELECTED' ? '/gifts/result' : ''}`);
+    else if (target?.kind === 'archive') router.push(`/archive/cards/${target.id}?comments=1`);
     else if (target) setNotice(`${TARGET_LABELS[target.kind]} 화면은 준비 중이에요.`);
   };
   const refresh = () => { void store.load(); void store.refreshUnread(); };

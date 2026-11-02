@@ -1,2 +1,2 @@
-import { ArchiveScreen } from '@/components/archive/ArchiveScreen';
-export default function ArchivePage() { return <ArchiveScreen />; }
+import { ServerArchiveScreen } from '@/components/archive/ServerArchiveScreen';
+export default function ArchivePage() { return <ServerArchiveScreen />; }

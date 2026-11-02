@@ -45,3 +45,6 @@ export { createHttpLetterRepository } from './letter/HttpLetterRepository';
 export { createLetterDelivery, validateLetterDraft } from './letter/LetterDelivery';
 export { createReceivedLettersStore } from './letter/ReceivedLettersStore';
 export type { ReceivedLettersState } from './letter/ReceivedLettersStore';
+export type { ArchiveCard, ArchiveSection, ArchiveHome, ArchiveCardDetail, ArchiveComment, ArchiveCommentPage, ArchiveRepository } from './archive/Archive';
+export { createHttpArchiveRepository, archiveCommentText } from './archive/HttpArchiveRepository';
+export { createArchiveCommentsStore } from './archive/ArchiveCommentsStore';
