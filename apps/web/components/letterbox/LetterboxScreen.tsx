@@ -16,7 +16,6 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
   const { letters, tab, setTab, query, setQuery, date, setDate, toggleFavorite, unhide } = useLetterboxPreview();
   const [searchOpen, setSearchOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [notice, setNotice] = useState(false);
   const [restoreId, setRestoreId] = useState<string | null>(null);
   const search = useRef<HTMLInputElement>(null);
   const closeCalendar = useCallback(() => setCalendarOpen(false), []);
@@ -71,10 +70,13 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
       </Link>)}
     </div> : <div className="grid grid-cols-2 gap-x-[28px] gap-y-[28px] px-[24px] pt-[24px]">
       {cards.map(card => <div key={card.id} className="relative min-w-0">
-        <button type="button" onClick={() => card.hidden ? setRestoreId(card.id) : setNotice(true)} aria-label={card.hidden ? `${card.sender}의 ${card.date} 숨긴 편지, 숨김 해제` : `${card.sender}의 ${card.date} 편지 보기`}
+        {card.hidden ? <button type="button" onClick={() => setRestoreId(card.id)} aria-label={`${card.sender}의 ${card.date} 숨긴 편지, 숨김 해제`}
           className="relative block aspect-[1.1] w-full overflow-hidden rounded-[12px] bg-gray-m-100 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange">
-          {card.hidden ? <span className="text-14 font-medium text-gray-m-600">숨긴 편지<br /><span className="text-12">눌러서 숨김 해제</span></span> : <Image src={card.image} alt="" fill sizes="(min-width: 768px) 163px, 42vw" className="object-cover" />}
-        </button>
+          <span className="text-14 font-medium text-gray-m-600">숨긴 편지<br /><span className="text-12">눌러서 숨김 해제</span></span>
+        </button> : <Link href={`${ROUTES.letterbox}/${card.senderId}/${card.id}`} aria-label={`${card.sender}의 ${card.date} 편지 보기`}
+          className="relative block aspect-[1.1] w-full overflow-hidden rounded-[12px] bg-gray-m-100 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange">
+          <Image src={card.image} alt="" fill sizes="(min-width: 768px) 163px, 42vw" className="object-cover" />
+        </Link>}
         {!card.hidden && <button type="button" aria-label={`${card.date} 편지 ${card.id} 즐겨찾기`} aria-pressed={card.favorite} onClick={() => toggleFavorite(card.id)} className="absolute right-0 bottom-0 flex size-[44px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange">
           <Image src={card.favorite ? '/icons/favorite-active.svg' : '/icons/favorite-inactive.svg'} alt="" width={24} height={24} />
         </button>}
@@ -84,7 +86,6 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
       <p>{senderId && !sender ? '보낸 사람을 찾을 수 없어요.' : '조건에 맞는 편지가 없어요.'}</p>
       <button type="button" onClick={reset} className="mt-[16px] min-h-[44px] rounded-control border border-gray-m-200 px-[16px] text-black">필터 초기화</button>
     </div>}
-    <Popup isOpen={notice} title="카드 상세 화면은 준비 중이에요." description="이번 작업은 보관함 목록 UI입니다. 상세 화면은 다음 작업에서 연결할 예정이에요." showCancel={false} onCancel={() => setNotice(false)} onConfirm={() => setNotice(false)} />
     <Popup isOpen={restoreId !== null} title="편지 숨김을 해제할까요?" description="이 미리보기에서 전체 목록에 다시 표시됩니다. 서버에는 저장되지 않아요." confirmLabel="숨김 해제" onCancel={() => setRestoreId(null)} onConfirm={() => { if (restoreId) unhide(restoreId); setRestoreId(null); }} />
   </div>;
 };
