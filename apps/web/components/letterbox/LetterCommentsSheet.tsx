@@ -65,7 +65,7 @@ export const LetterCommentsSheet = ({ letterId, onClose }: { letterId: string; o
       addComment(letterId, text, mode.kind === 'reply' ? mode.id : null);
       if (mode.kind === 'reply') setExpanded(current => [...new Set([...current, mode.id])]);
     }
-    setFeedback(mode.kind === 'edit' ? '댓글을 수정했어요. 미리보기에서만 유지됩니다.' : '댓글을 남겼어요. 미리보기에서만 유지됩니다.');
+    setFeedback(mode.kind === 'edit' ? '댓글을 수정했어요.' : '댓글을 남겼어요.');
     setDraft(''); setMode({ kind: 'new' });
     requestAnimationFrame(() => { list.current?.scrollTo({ top: list.current.scrollHeight }); input.current?.focus(); });
   };
@@ -102,7 +102,6 @@ export const LetterCommentsSheet = ({ letterId, onClose }: { letterId: string; o
         <button ref={close} type="button" aria-label="댓글 닫기" onClick={onClose} className="mx-auto flex h-[34px] w-[80px] shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><span className="h-[4px] w-[48px] rounded-full bg-gray-m-100" /></button>
         <div className="flex shrink-0 items-center justify-between pb-[8px]">
           <h2 className="text-14 font-semibold">댓글 {items.filter(item => !item.deleted).length}</h2>
-          <p className="text-12 text-gray-m-300">미리보기 · 저장되지 않아요</p>
         </div>
         <div ref={list} className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[18px]">
           {!items.length && <p className="py-[36px] text-center text-14 text-gray-m-300">첫 댓글을 남겨보세요.</p>}
@@ -123,7 +122,7 @@ export const LetterCommentsSheet = ({ letterId, onClose }: { letterId: string; o
             <button type="button" className="min-h-[32px] px-[8px]" onClick={() => compose({ kind: 'new' })}>취소</button>
           </div>}
           <div className="flex items-end gap-[10px]">
-            <Image src="/images/letterbox/sample-avatar.jpg" alt="내 샘플 프로필" width={36} height={36} className="mb-[4px] size-[36px] shrink-0 rounded-full object-cover" />
+            <Image src="/images/letterbox/sample-avatar.jpg" alt="내 프로필" width={36} height={36} className="mb-[4px] size-[36px] shrink-0 rounded-full object-cover" />
             <label htmlFor="letter-comment-body" className="sr-only">{mode.kind === 'edit' ? '댓글 수정 내용' : mode.kind === 'reply' ? '답글 내용' : '댓글 내용'}</label>
             <textarea ref={input} id="letter-comment-body" value={draft} maxLength={300} rows={1} onChange={event => setDraft(event.target.value)} placeholder="카드에 댓글을 남겨보아요"
               className="max-h-[100px] min-h-[44px] min-w-0 flex-1 resize-y rounded-[20px] bg-gray-m-600 px-[14px] py-[12px] text-12 text-white placeholder:text-gray-m-300 focus:outline-2 focus:outline-orange" />
@@ -133,9 +132,9 @@ export const LetterCommentsSheet = ({ letterId, onClose }: { letterId: string; o
         </form>
       </div>
     </div>
-    <Popup isOpen={deleteId !== null} title="댓글을 삭제하시겠습니까?" description="삭제된 댓글 안내는 남고, 기존 답글은 유지됩니다. 미리보기에서만 반영돼요." onCancel={() => { setDeleteId(null); requestAnimationFrame(() => input.current?.focus()); }} onConfirm={() => {
+    <Popup isOpen={deleteId !== null} title="댓글을 삭제하시겠습니까?" description="삭제된 댓글 안내는 남고, 기존 답글은 유지됩니다." onCancel={() => { setDeleteId(null); requestAnimationFrame(() => input.current?.focus()); }} onConfirm={() => {
       if (deleteId) { deleteComment(letterId, deleteId); if (mode.kind !== 'new' && mode.id === deleteId) compose({ kind: 'new' }); }
-      setDeleteId(null); setFeedback('댓글을 삭제했어요. 미리보기에서만 반영됩니다.');
+      setDeleteId(null); setFeedback('댓글을 삭제했어요.');
       requestAnimationFrame(() => input.current?.focus());
     }} />
   </>, overlayRoot);

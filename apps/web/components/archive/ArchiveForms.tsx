@@ -18,8 +18,7 @@ export const ArchiveCategoryForm = ({ onClose, onCreated }: { onClose: () => voi
       <input id="archive-category-name" value={name} maxLength={20} onChange={event => setName(event.target.value)} placeholder="2~20자로 입력해 주세요" aria-invalid={duplicate || (!!name && !valid)} aria-describedby="archive-category-help"
         className="min-h-[47px] w-full rounded-control border border-gray-m-200 px-[12px] text-14 focus:outline-2 focus:outline-orange" />
       <p id="archive-category-help" className="mt-[8px] text-12 text-gray-m-400">{duplicate ? '이미 있는 카테고리 이름이에요.' : '앞뒤 공백을 제외한 2~20자, 중복 불가'}</p>
-      <p className="my-[20px] text-12 text-gray-m-400">미리보기에서만 추가되며 서버에는 저장되지 않아요.</p>
-      <Button disabled={!valid} type="submit">추가</Button>
+      <Button className="mt-[20px]" disabled={!valid} type="submit">추가</Button>
     </form>
   </ArchiveDialog>;
 };
@@ -44,7 +43,7 @@ export const ArchiveAddCardsForm = ({ initialCategory, onClose, onAdded }: { ini
         </label>)}
         {!available.length && <p className="py-[24px] text-center text-14 text-gray-m-400">담을 수 있는 편지를 모두 담았어요.</p>}
       </div>
-      <p className="my-[16px] text-12 text-gray-m-400">선택한 카드는 친구 공개로 추가돼요. 미리보기에서만 유지됩니다.</p>
+      <p className="my-[16px] text-12 text-gray-m-400">선택한 카드는 친구 공개로 추가돼요.</p>
       <Button type="submit" disabled={!picked.length}>{picked.length}개 담기</Button>
     </form>
   </ArchiveDialog>;

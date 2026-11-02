@@ -12,7 +12,6 @@ export const MypageShell = ({ title, home = false, children }: { title: string; 
         className="flex size-[44px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange">
         <Image src="/icons/chevron-left.svg" alt="" width={14} height={21} />
       </Link>} />
-    <p className="px-page pt-[8px] text-12 text-gray-m-400">화면 미리보기 · 변경사항은 저장되지 않아요.</p>
     {children}
   </div>
 );

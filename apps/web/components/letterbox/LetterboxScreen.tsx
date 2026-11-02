@@ -30,7 +30,6 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
 
   return <div className="flex flex-1 flex-col bg-gray-pc-50 pb-[32px]">
     <LetterboxHeader sender={!!senderId} expanded={searchOpen} onSearch={() => { setSearchOpen(open => !open); if (!searchOpen) requestAnimationFrame(() => search.current?.focus()); }} />
-    <p className="px-[24px] pt-[8px] text-12 text-gray-m-400">샘플 편지 미리보기 · 변경사항은 저장되지 않아요.</p>
     <div id="letterbox-search" hidden={!searchOpen} className="px-[24px] pt-[16px]">
       <label htmlFor="sender-search" className="sr-only">보낸 사람 이름</label>
       <div className="flex gap-[8px]">
@@ -86,6 +85,6 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
       <p>{senderId && !sender ? '보낸 사람을 찾을 수 없어요.' : '조건에 맞는 편지가 없어요.'}</p>
       <button type="button" onClick={reset} className="mt-[16px] min-h-[44px] rounded-control border border-gray-m-200 px-[16px] text-black">필터 초기화</button>
     </div>}
-    <Popup isOpen={restoreId !== null} title="편지 숨김을 해제할까요?" description="이 미리보기에서 전체 목록에 다시 표시됩니다. 서버에는 저장되지 않아요." confirmLabel="숨김 해제" onCancel={() => setRestoreId(null)} onConfirm={() => { if (restoreId) unhide(restoreId); setRestoreId(null); }} />
+    <Popup isOpen={restoreId !== null} title="편지 숨김을 해제할까요?" description="전체 목록에 다시 표시됩니다." confirmLabel="숨김 해제" onCancel={() => setRestoreId(null)} onConfirm={() => { if (restoreId) unhide(restoreId); setRestoreId(null); }} />
   </div>;
 };

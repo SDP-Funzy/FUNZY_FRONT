@@ -38,7 +38,7 @@ export const PasswordChangeScreen = () => {
         {error && <p role="alert" className="mt-[16px] text-12 text-error">{error}</p>}
         <div className="mt-auto pt-[40px]"><Button type="submit" disabled={!currentPassword || !password || !confirmation}>변경하기</Button></div>
       </form>
-      <Popup isOpen={open} title="화면 미리보기" description="입력 형식을 확인했어요. 비밀번호를 전송하거나 저장하지 않았습니다." showCancel={false} onCancel={() => setOpen(false)} onConfirm={() => setOpen(false)} />
+      <Popup isOpen={open} title="안내" description="입력 형식을 확인했어요. 비밀번호 변경 기능은 준비 중이에요." showCancel={false} onCancel={() => setOpen(false)} onConfirm={() => setOpen(false)} />
     </MypageShell>
   );
 };

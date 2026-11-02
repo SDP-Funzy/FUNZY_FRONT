@@ -19,7 +19,6 @@ export const FriendSearchScreen = () => {
       <input id="friend-search" type="search" value={query} onChange={event => setQuery(event.target.value)} maxLength={30} autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="아이디로 친구 찾기" autoComplete="off"
         className="min-h-[48px] min-w-0 flex-1 bg-transparent text-14 text-gray-m-600 outline-none placeholder:text-gray-m-400" />
     </form>
-    <p className="mt-[12px] text-12 text-gray-m-400">샘플 미리보기 · 실제 친구 요청은 전송되지 않아요.</p>
     <ul aria-label="친구 검색 결과" className="mt-[8px]">
       {results.map(member => <li key={member.id}><Link href={`${ROUTES.friends}/${member.id}`} aria-label={`@${member.loginId} 아카이브 보기`} className="flex min-h-[68px] items-center gap-[12px] rounded-control px-[8px] focus-visible:outline-2 focus-visible:outline-orange">
         <FriendAvatar src={member.avatar} /><span className="min-w-0 truncate text-14 text-gray-m-700">@{member.loginId}</span>

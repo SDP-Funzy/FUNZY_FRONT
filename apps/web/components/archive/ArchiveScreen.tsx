@@ -54,11 +54,10 @@ export const ArchiveScreen = ({ readOnly = false, title = '아카이브', baseHr
         </button>)}
       </div>
     </div>
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-[8px] px-[20px] py-[12px] text-12 text-gray-m-500">
-      {!readOnly && <><label className="flex items-center gap-[6px]">공개 범위<select aria-label="아카이브 공개 범위 필터" value={scope} onChange={event => { setScope(event.target.value as ArchiveScope); setSelectedId(null); }} className="min-h-[36px] rounded-control border border-gray-m-100 bg-white px-[6px] text-12 text-black"><option value="friends">친구 공개</option><option value="private">나만 보기</option><option value="all">전체</option></select></label>
-      <button type="button" onClick={() => setCardsForm(true)} className="min-h-[36px] rounded-full bg-black px-[12px] text-white">카드 담기</button></>}
-      <p className="w-full text-12 text-gray-m-400">{readOnly ? '샘플 친구 아카이브 · 친구 공개 카드만 표시돼요.' : '샘플 아카이브 · 변경사항은 저장되지 않아요.'}</p>
-    </div>
+    {!readOnly && <div className="flex shrink-0 flex-wrap items-center justify-between gap-[8px] px-[20px] py-[12px] text-12 text-gray-m-500">
+      <label className="flex items-center gap-[6px]">공개 범위<select aria-label="아카이브 공개 범위 필터" value={scope} onChange={event => { setScope(event.target.value as ArchiveScope); setSelectedId(null); }} className="min-h-[36px] rounded-control border border-gray-m-100 bg-white px-[6px] text-12 text-black"><option value="friends">친구 공개</option><option value="private">나만 보기</option><option value="all">전체</option></select></label>
+      <button type="button" onClick={() => setCardsForm(true)} className="min-h-[36px] rounded-full bg-black px-[12px] text-white">카드 담기</button>
+    </div>}
     <div className="relative min-h-0 flex-1">
       <div ref={viewport} role="region" aria-label="아카이브 격자 보드" tabIndex={0} onKeyDown={event => { if (event.key === 'Escape') setSelectedId(null); }}
         className="h-full overflow-auto overscroll-contain focus-visible:outline-2 focus-visible:outline-orange" onClick={event => { if (event.target instanceof Element && !event.target.closest('[data-archive-node]')) setSelectedId(null); }}>

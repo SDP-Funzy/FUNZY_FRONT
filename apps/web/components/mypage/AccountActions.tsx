@@ -19,10 +19,10 @@ export const AccountActions = () => {
         description={withdraw ? '회원 탈퇴 시 계정 정보와 보관한 이미지가 삭제되어 복구할 수 없어요.\n정말 탈퇴하시겠어요?' : '로그아웃 하실까요?'}
         cancelLabel="취소" confirmLabel={withdraw ? '탈퇴하기' : '로그아웃'} onCancel={() => setAction(null)}
         onConfirm={() => {
-          setNotice(withdraw ? '미리보기에서는 실제 회원 탈퇴가 실행되지 않아요.' : '미리보기에서는 실제 로그아웃이 실행되지 않아요.');
+          setNotice(withdraw ? '회원 탈퇴 기능은 준비 중이에요.' : '로그아웃 기능은 준비 중이에요.');
           setAction(null);
         }} />
-      <Popup isOpen={notice !== null} title="화면 미리보기" description={notice ?? undefined} showCancel={false}
+      <Popup isOpen={notice !== null} title="안내" description={notice ?? undefined} showCancel={false}
         onCancel={() => setNotice(null)} onConfirm={() => setNotice(null)} />
     </>
   );

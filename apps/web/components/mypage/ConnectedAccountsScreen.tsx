@@ -25,17 +25,17 @@ export const ConnectedAccountsScreen = () => {
       <div className="mt-[40px] px-page">
         {PROVIDERS.map(item => <div key={item.id} className="flex min-h-[76px] items-center gap-[16px] border-b border-gray-m-100 py-[16px]">
           <Image src={item.icon} alt="" width={28} height={28} />
-          <div className="flex-1"><p className="text-16">{item.label}</p><p className="mt-[4px] text-12 text-gray-m-400">{connections[item.id] ? '연결됨 (미리보기)' : '연결 안 됨'}</p></div>
+          <div className="flex-1"><p className="text-16">{item.label}</p><p className="mt-[4px] text-12 text-gray-m-400">{connections[item.id] ? '연결됨' : '연결 안 됨'}</p></div>
           <button type="button" onClick={() => setSelected(item.id)} aria-label={`${item.label} 계정 ${connections[item.id] ? '연결 해제' : '연결하기'}`}
             className="rounded-control border border-gray-m-100 px-[12px] py-[8px] text-14 focus-visible:outline-2 focus-visible:outline-orange">{connections[item.id] ? '연결 해제' : '연결하기'}</button>
         </div>)}
         {notice && <p role="status" className="mt-[20px] text-12 text-gray-m-500">{notice}</p>}
       </div>
       <Popup isOpen={selected !== null} title={`${provider?.label ?? ''} 계정 ${connected ? '연결 해제' : '연결'}`}
-        description="화면 미리보기용 상태만 바뀝니다. 실제 소셜 계정에는 영향을 주지 않아요."
+        description="실제 소셜 계정 연결은 아직 지원하지 않아요."
         cancelLabel="취소" confirmLabel={connected ? '연결 해제' : '연결하기'} onCancel={() => setSelected(null)}
         onConfirm={() => {
-          if (selected) { setConnections(current => ({ ...current, [selected]: !current[selected] })); setNotice('연결 상태를 미리보기에 반영했어요.'); }
+          if (selected) { setConnections(current => ({ ...current, [selected]: !current[selected] })); setNotice('연결 상태를 반영했어요.'); }
           setSelected(null);
         }} />
     </MypageShell>

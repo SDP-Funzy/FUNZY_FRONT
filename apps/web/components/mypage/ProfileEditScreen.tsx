@@ -37,7 +37,7 @@ export const ProfileEditScreen = () => {
         <div>
           <label htmlFor="profile-name" className="mb-[12px] block text-16">이름</label>
           <Input id="profile-name" value={name} maxLength={20} isError={!nameValid} onClear={() => { setName(''); setNotice(null); }}
-            onChange={(event) => { setName(event.target.value); setNotice(null); }} onBlur={() => { if (nameValid) { setProfile(current => ({ ...current, name: name.trim() })); setNotice('이름을 미리보기에 반영했어요.'); } }}
+            onChange={(event) => { setName(event.target.value); setNotice(null); }} onBlur={() => { if (nameValid) { setProfile(current => ({ ...current, name: name.trim() })); setNotice('이름을 반영했어요.'); } }}
             hints={[{ label: '2~20자', isActive: nameValid }, { label: '중복 불가', isActive: false }, { label: '즉시 반영', isActive: nameValid && name.trim() === profile.name }]} />
           <p className="mt-[8px] text-12 text-gray-m-400">이름 중복 확인은 준비 중이에요.</p>
         </div>
@@ -45,7 +45,7 @@ export const ProfileEditScreen = () => {
           <label htmlFor="profile-id" className="mb-[12px] block text-16">아이디</label>
           <Input id="profile-id" value={loginId} maxLength={20} autoCapitalize="none" spellCheck={false} isError={!idValid}
             onClear={() => { setLoginId(''); setNotice(null); }} onChange={(event) => { setLoginId(event.target.value.toLowerCase()); setNotice(null); }}
-            onBlur={() => { if (idValid) { setProfile(current => ({ ...current, loginId })); setNotice('아이디를 미리보기에 반영했어요.'); } }} />
+            onBlur={() => { if (idValid) { setProfile(current => ({ ...current, loginId })); setNotice('아이디를 반영했어요.'); } }} />
           <p className={`mt-[8px] text-12 ${idValid ? 'text-gray-m-400' : 'text-error'}`}>영문 소문자·숫자·마침표·밑줄로 2~20자 입력해 주세요.</p>
         </div>
         {notice && <p role="status" className="text-12 text-gray-m-500">{notice}</p>}
