@@ -3,12 +3,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { LetterCommentsSheet } from '@/components/letterbox/LetterCommentsSheet';
 import { useLetterboxPreview } from '@/components/letterbox/LetterboxPreviewProvider';
 import { Popup } from '@/components/ui/Popup';
 import { ROUTES } from '@/lib/routes';
 
-export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; letterId: string }) => {
+export const LetterDetailScreen = ({ senderId, letterId, backHref, extraActions, allowHide = true }: { senderId: string; letterId: string; backHref?: string; extraActions?: ReactNode; allowHide?: boolean }) => {
   const { letters, toggleFavorite, hide, unhide, comments } = useLetterboxPreview();
   const letter = letters.find(item => item.id === letterId && item.senderId === senderId);
   const [active, setActive] = useState(0);
@@ -18,7 +19,7 @@ export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; l
   const [confirmHide, setConfirmHide] = useState(false);
   const [confirmShow, setConfirmShow] = useState(false);
   const closeComments = useCallback(() => setCommentsOpen(false), [setCommentsOpen]);
-  const back = `${ROUTES.letterbox}/${senderId}`;
+  const back = backHref ?? `${ROUTES.letterbox}/${senderId}`;
   const count = (comments[letterId] ?? []).filter(item => !item.deleted).length;
 
   useEffect(() => {
@@ -61,7 +62,7 @@ export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; l
             <p className="min-w-0 font-en text-14 font-semibold break-words">To: {letter.to}</p>
             <div className="flex shrink-0">
               <button type="button" aria-label="편지 즐겨찾기" aria-pressed={letter.favorite} onClick={() => toggleFavorite(letterId)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src={letter.favorite ? '/icons/favorite-active.svg' : '/icons/favorite-inactive.svg'} alt="" width={24} height={24} /></button>
-              <button type="button" aria-label="편지 숨기기" onClick={() => setConfirmHide(true)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/letter-unlock.svg" alt="" width={26} height={26} /></button>
+              {allowHide && <button type="button" aria-label="편지 숨기기" onClick={() => setConfirmHide(true)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/letter-unlock.svg" alt="" width={26} height={26} /></button>}
             </div>
           </div>
           <div tabIndex={0} role="region" aria-label={`마음카드 ${index + 1} 본문`} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[4px] text-14 leading-[1.8] break-words whitespace-pre-wrap focus-visible:outline-2 focus-visible:outline-orange">{page.content}</div>
@@ -77,6 +78,7 @@ export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; l
         <button type="button" aria-label="다음 마음카드" disabled={active === letter.pages.length - 1} onClick={() => goTo(active + 1)} className="min-h-[44px] px-[10px] disabled:opacity-40">다음</button>
       </div>
       <div className="mt-[14px] px-[24px]"><button type="button" onClick={() => setCommentsOpen(true)} className="min-h-[44px] w-full rounded-full bg-gray-m-700 px-[16px] text-14 font-semibold text-white focus-visible:outline-2 focus-visible:outline-orange">댓글 {count}개 보기</button></div>
+      {extraActions && <div className="px-[24px]">{extraActions}</div>}
     </div>
     <Popup isOpen={confirmHide} title="편지를 숨길까요?" description="전체·즐겨찾기 목록에서 제외됩니다. 잠긴편지 목록에서 다시 표시할 수 있어요. 미리보기에서만 반영됩니다." confirmLabel="숨기기" onCancel={() => setConfirmHide(false)} onConfirm={() => { setConfirmHide(false); hide(letterId); }} />
     {commentsOpen && <LetterCommentsSheet letterId={letterId} onClose={closeComments} />}

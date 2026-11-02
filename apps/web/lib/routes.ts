@@ -5,6 +5,7 @@
 export const ROUTES = {
   home: '/home',
   letterbox: '/letterbox',
+  archive: '/archive',
   login: '/login',
   passwordForgot: '/password/forgot',
   passwordReset: '/password/reset',

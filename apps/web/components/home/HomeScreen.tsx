@@ -36,6 +36,7 @@ export const HomeScreen = () => {
         <button type="button" onClick={() => router.push(ROUTES.letterbox)} className="mt-[16px] min-h-[44px] px-[16px] text-14 text-gray-m-500 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-orange">
           편지 보관함
         </button>
+        <button type="button" onClick={() => router.push(ROUTES.archive)} className="mt-[4px] min-h-[44px] px-[16px] text-14 text-gray-m-500 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-orange">아카이브</button>
       </section>
     </div>
   );
