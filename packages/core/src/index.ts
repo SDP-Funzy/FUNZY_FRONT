@@ -39,3 +39,9 @@ export { getNotificationTarget, getNotificationLabel, formatNotificationTime } f
 export { createHttpNotificationRepository } from './notification/HttpNotificationRepository';
 export { createNotificationStore } from './notification/NotificationStore';
 export type { NotificationState } from './notification/NotificationStore';
+
+export type { Letter, LetterCard, LetterGift, LetterKok, LetterRepository, LetterPhoto, LetterDraftCard, LetterShareLink, LetterImageUpload, SharedLetter, ReceivedLetter, ReceivedLetterQuery, ReceivedLetterPage, SentLetterReceipt } from './letter/Letter';
+export { createHttpLetterRepository } from './letter/HttpLetterRepository';
+export { createLetterDelivery, validateLetterDraft } from './letter/LetterDelivery';
+export { createReceivedLettersStore } from './letter/ReceivedLettersStore';
+export type { ReceivedLettersState } from './letter/ReceivedLettersStore';

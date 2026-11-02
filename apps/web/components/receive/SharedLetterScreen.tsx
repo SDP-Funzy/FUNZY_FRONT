@@ -3,29 +3,43 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import type { SharedLetter } from '@sdp/core';
 import { Button } from '@/components/ui/Button';
 import { Popup } from '@/components/ui/Popup';
 import { HeartCardPreview } from '@/components/write/HeartCardPreview';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useCardCarousel } from '@/hooks/common/useCardCarousel';
+import { useApiResource } from '@/hooks/common/useApiResource';
 import { cn } from '@/lib/cn';
 import { ROUTES } from '@/lib/routes';
-import { getSharedLetterPreview } from '@/lib/sharedLetterPreview';
+import { letterFailure, letterRepository, loadSharedLetter } from '@/lib/letterService';
+import { asLetterView } from '@/lib/letterView';
 import { authPathWithReturn, SHARED_LETTER_PATH } from '@/lib/sharedLetterReturn';
 
-export const SharedLetterScreen = ({ token, initialCard }: { token: string; initialCard?: string }) => {
-  const letter = getSharedLetterPreview(token);
+const SharedLetterView = ({ token, initialCard, shared, replace }: { token: string; initialCard?: string; shared: SharedLetter; replace: (next: SharedLetter) => void }) => {
+  const letter = asLetterView(shared.letter);
   const pageIds = [...(letter?.cards.map(item => item.card.id) ?? []), ...(letter?.gifts.map(gift => gift.id) ?? [])];
   const initialIndex = initialCard ? pageIds.indexOf(initialCard) : -1;
   const [opened, setOpened] = useState(initialIndex >= 0);
   const [pendingGift, setPendingGift] = useState<string | null>(null);
-  const [selectedGift, setSelectedGift] = useState<string | null>(null);
+  const selectedGift = letter.selectedGiftId;
+  const [choosing, setChoosing] = useState(false);
+  const [chooseError, setChooseError] = useState<string | null>(null);
+  const choosingRef = useRef(false);
   const [announcement, setAnnouncement] = useState('');
   const { active, track, handlers } = useCardCarousel(opened ? pageIds.length : 0, Math.max(0, initialIndex));
   const { status } = useAuth();
   const router = useRouter();
-  if (!letter) return <div className="flex flex-1 flex-col items-center justify-center gap-[20px] bg-cream px-page py-[60px] text-center"><h1 className="text-18 font-bold">편지를 찾을 수 없어요.</h1><p className="text-14 text-gray-m-400">공유 링크를 다시 확인해 주세요.</p><Link href={ROUTES.onboarding} className="flex min-h-[44px] items-center text-14 underline">처음으로</Link></div>;
+  const choose = async (giftId: number) => {
+    if (status !== 'authenticated') { setPendingGift(`gift-${giftId}`); return; }
+    if (shared.viewer !== 'RECIPIENT') { setChooseError(shared.viewer === 'SENDER' ? '보낸 사람은 선물을 고를 수 없어요.' : '다른 사람이 받은 편지라 선물을 고를 수 없어요.'); return; }
+    if (choosingRef.current) return;
+    choosingRef.current = true; setChoosing(true);
+    try { const updated = await letterRepository.chooseGift(shared.letter.letterId, giftId); replace({ ...shared, letter: updated }); setAnnouncement('선물을 선택했어요.'); }
+    catch (error) { setChooseError(letterFailure(error)); }
+    finally { choosingRef.current = false; setChoosing(false); }
+  };
 
   if (!opened) return <div className="flex min-h-dvh flex-none flex-col items-center justify-center bg-cream px-[36px] py-[60px] md:min-h-full">
     <h1 className="sr-only">{letter.recipient}님에게 편지가 왔어요</h1>
@@ -49,17 +63,33 @@ export const SharedLetterScreen = ({ token, initialCard }: { token: string; init
       {letter.cards.map((item, index) => <article key={item.card.id} aria-label={`마음카드 ${index + 1}`} aria-hidden={active !== index} inert={active !== index} className="flex h-[var(--shared-card-height)] min-w-0 basis-full shrink-0 snap-center items-center justify-center">
         <div style={{ width: 'min(100%, calc(var(--shared-card-height) * 306 / 449))' }}><HeartCardPreview card={item.card} photoUrl={item.photo} dateLabel={letter.date} scrollable /></div>
       </article>)}
-      {letter.gifts.map((gift, index) => <button key={gift.id} type="button" disabled={status === 'loading'} aria-label={`선물 후보 ${index + 1}: ${gift.label}`} aria-pressed={selectedGift === gift.id} aria-haspopup={status === 'authenticated' ? undefined : 'dialog'} aria-hidden={active !== letter.cards.length + index} inert={active !== letter.cards.length + index}
-        onClick={() => { if (status === 'authenticated') { setSelectedGift(gift.id); setAnnouncement('선물을 선택했어요.'); } else setPendingGift(gift.id); }}
+      {letter.gifts.map((gift, index) => <button key={gift.id} type="button" disabled={choosing} aria-label={`선물 후보 ${index + 1}: ${gift.label}`} aria-pressed={selectedGift === gift.id} aria-haspopup={status === 'authenticated' ? undefined : 'dialog'} aria-hidden={active !== letter.cards.length + index} inert={active !== letter.cards.length + index}
+        onClick={() => { void choose(gift.giftItemId); }}
         className={cn('relative h-[var(--shared-card-height)] min-w-0 basis-full shrink-0 snap-center overflow-hidden rounded-[20px] border-[3px] bg-white p-[20px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange', selectedGift === gift.id || pendingGift === gift.id ? 'border-orange' : 'border-transparent')}>
         <span aria-hidden="true" className={cn('absolute top-[18px] left-[18px] z-10 size-[28px] rounded-full', selectedGift === gift.id || pendingGift === gift.id ? 'border-[5px] border-white bg-orange ring-1 ring-orange' : 'bg-gray-m-100')} />
-        <Image src={gift.image} alt={gift.label} fill sizes="(min-width: 768px) 338px, 85vw" className="object-contain p-[20px]" />
+        <span className="flex h-full flex-col items-center justify-center gap-[20px] text-black"><span className="text-24 font-bold break-words">{gift.label}</span>{letter.reason && <span className="text-14 leading-[1.7] break-words">{letter.reason}</span>}</span>
       </button>)}
     </div>
     <p role="status" className="sr-only">{announcement}</p>
+    <div className="mt-auto flex justify-center px-[24px] pt-[24px] pb-safe">
+      {status !== 'authenticated' ? <Button variant="accent" fullWidth={false} className="px-[24px]" onClick={() => router.push(authPathWithReturn(ROUTES.login, `${SHARED_LETTER_PATH}/${encodeURIComponent(token)}?card=${encodeURIComponent(pageIds[active] ?? '')}`))}>로그인하고 편지 받기</Button>
+        : shared.viewer === 'RECIPIENT' && <Link href={`/letterbox/${shared.letter.letterId}`} className="rounded-control bg-orange px-[24px] py-[14px] text-14 text-white">보관함에서 보기</Link>}
+    </div>
     <Popup isOpen={pendingGift !== null} title="선물을 고르고 싶으면 로그인을 해야 해요" description="해당 카드가 더 궁금하시다면 로그인을 해주세요! 펀지와 더 함께해요." cancelLabel="나중에" confirmLabel="로그인하기" onCancel={() => setPendingGift(null)} onConfirm={() => {
       const returnTo = `${SHARED_LETTER_PATH}/${encodeURIComponent(token)}?card=${encodeURIComponent(pendingGift ?? pageIds[active])}`;
       setPendingGift(null); router.push(authPathWithReturn(ROUTES.login, returnTo));
     }} />
+    <Popup isOpen={chooseError !== null} title="선물을 선택할 수 없어요" description={chooseError ?? undefined} showCancel={false} onCancel={() => setChooseError(null)} onConfirm={() => setChooseError(null)} />
   </div>;
+};
+
+export const SharedLetterScreen = ({ token, initialCard }: { token: string; initialCard?: string }) => {
+  const { status } = useAuth();
+  const loader = useCallback((signal: AbortSignal) => loadSharedLetter(token, status === 'authenticated', signal), [token, status]);
+  const resource = useApiResource(`shared:${token}:${status}`, loader, status !== 'loading');
+  if (!resource.data) return <div className="flex flex-1 flex-col items-center justify-center gap-[20px] bg-cream px-page py-[60px] text-center">
+    {resource.error ? <><h1 className="text-18 font-bold">편지를 불러오지 못했어요.</h1><p role="alert" className="text-14 text-error">{letterFailure(resource.error)}</p><Button fullWidth={false} onClick={resource.reload} className="px-[24px]">다시 시도</Button></> : <p role="status" className="text-14 text-gray-m-400">편지를 불러오고 있어요.</p>}
+    <Link href={status === 'authenticated' ? ROUTES.letterbox : ROUTES.onboarding} className="flex min-h-[44px] items-center text-14 underline">돌아가기</Link>
+  </div>;
+  return <SharedLetterView key={`${token}:${status}`} token={token} initialCard={initialCard} shared={resource.data} replace={resource.replace} />;
 };

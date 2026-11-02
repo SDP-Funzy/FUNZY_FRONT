@@ -9,9 +9,9 @@ export type HeartCardCategory = (typeof HEART_CARD_CATEGORIES)[number];
 
 /**
  * 편지 한 통에 담을 수 있는 마음카드 수
- * TODO: 기획 확정 전 임시 상한. 확정되면 이 값만 바꾸면 된다
+ * 편지 작성 API에서 허용하는 최대 5장
  */
-export const MAX_HEART_CARDS_PER_LETTER = 10;
+export const MAX_HEART_CARDS_PER_LETTER = 5;
 
 /** 작성 중인 마음카드 (서버에 보내기 전 상태) */
 export type HeartCardDraft = {
@@ -19,7 +19,7 @@ export type HeartCardDraft = {
   category: HeartCardCategory;
   /**
    * '기타 직접입력' 을 골랐을 때 직접 적은 카테고리 이름
-   * TODO: 백엔드에 저장할 곳이 없어 확인 요청 중
+   * 기타 카테고리의 customCategory로 저장한다.
    */
   customCategory: string;
   to: string;

@@ -41,7 +41,7 @@ export const HeartCardEditor = () => {
           <input
             aria-label="받는 사람"
             placeholder="받는 사람"
-            maxLength={20}
+            maxLength={10}
             value={currentCard.to}
             onChange={(e) => updateCurrentCard({ to: e.target.value })}
             className="ml-[4px] min-w-0 flex-1 bg-transparent outline-none placeholder:font-sans placeholder:font-normal placeholder:text-gray-m-200"
@@ -51,6 +51,7 @@ export const HeartCardEditor = () => {
         <textarea
           aria-label="마음카드 내용"
           placeholder="마음을 담아 적어주세요"
+          maxLength={500}
           value={currentCard.content}
           onChange={(e) => updateCurrentCard({ content: e.target.value })}
           className="mt-[18px] min-h-0 flex-1 resize-none bg-transparent text-15 leading-[1.6] font-normal text-gray-m-800 outline-none placeholder:text-gray-m-200"
@@ -61,7 +62,7 @@ export const HeartCardEditor = () => {
           <input
             aria-label="보내는 사람"
             placeholder="보내는 사람"
-            maxLength={20}
+            maxLength={10}
             value={currentCard.from}
             onChange={(e) => updateCurrentCard({ from: e.target.value })}
             className="ml-[4px] w-[50%] bg-transparent text-right outline-none placeholder:font-sans placeholder:font-normal placeholder:text-gray-m-200"
