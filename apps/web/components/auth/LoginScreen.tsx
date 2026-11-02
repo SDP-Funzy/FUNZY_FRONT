@@ -13,6 +13,7 @@ import { Popup } from '@/components/ui/Popup';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { login } from '@/lib/authService';
 import { ROUTES } from '@/lib/routes';
+import { authPathWithReturn } from '@/lib/sharedLetterReturn';
 
 type NoticeMessage = {
   title: string;
@@ -32,11 +33,11 @@ const NETWORK_FAILED: NoticeMessage = {
 
 /**
  * 로그인 화면 (Figma 로그인 주황 버전)
- * - 아이디(닉네임) + 비밀번호로 로그인. 성공하면 로그인 상태가 되고, 화면 묶음의 AuthGuard 가 홈으로 보낸다
+ * - 아이디(닉네임) + 비밀번호로 로그인. AuthGuard가 홈 또는 보던 공유 편지로 보낸다
  * - 실패: 틀림(AUTH_001)은 입력칸 아래 문구, 잠김(AUTH_010)·네트워크 오류는 팝업
  * - 비밀번호 찾기·잠금 해제는 복구 화면으로 연결. 아이디 찾기·소셜 로그인은 준비 중 안내
  */
-export const LoginScreen = () => {
+export const LoginScreen = ({ returnTo }: { returnTo?: string | null }) => {
   const router = useRouter();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
@@ -138,7 +139,7 @@ export const LoginScreen = () => {
 
       <p className="mt-[11px] flex items-center gap-[13px] text-[10px] leading-[1.5]">
         <span className="font-medium text-gray-pc-500">계정이 없으신가요?</span>
-        <Link href="/signup" className="font-semibold text-orange">
+        <Link href={authPathWithReturn(ROUTES.signup, returnTo)} className="font-semibold text-orange">
           회원가입하기
         </Link>
       </p>

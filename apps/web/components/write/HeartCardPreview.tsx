@@ -1,10 +1,12 @@
 import type { HeartCardDraft } from '@sdp/core';
+import Image from 'next/image';
 
 type HeartCardPreviewProps = {
   card: HeartCardDraft;
   photoUrl?: string;
   /** 보내는 날짜 (예: 2026.08.18) */
   dateLabel: string;
+  scrollable?: boolean;
 };
 
 /**
@@ -12,15 +14,16 @@ type HeartCardPreviewProps = {
  * - 사진이 있으면 카드 전체 배경, 없으면 주황 배경
  * - 그 위 반투명 흰 상자에 To / 본문 / From / 날짜
  */
-export const HeartCardPreview = ({ card, photoUrl, dateLabel }: HeartCardPreviewProps) => {
+export const HeartCardPreview = ({ card, photoUrl, dateLabel, scrollable = false }: HeartCardPreviewProps) => {
   return (
     <div className="relative aspect-[306/449] w-full overflow-hidden rounded-[20px] bg-orange">
-      {photoUrl && <img src={photoUrl} alt="" className="absolute inset-0 size-full object-cover" />}
+      {photoUrl && <Image src={photoUrl} alt="" fill unoptimized sizes="(min-width: 768px) 306px, 85vw" className="object-cover" />}
 
       <div className="absolute inset-x-[9%] top-[16%] flex h-[68%] flex-col justify-center rounded-funzy bg-white/30 px-[15px] py-[17px] shadow-[0_1.4px_7.5px_rgba(0,0,0,0.55)]">
         <div className="flex min-h-0 flex-col gap-[24px]">
           <p className="font-en text-[11px] font-semibold tracking-[-0.22px] text-gray-m-800">To: {card.to}</p>
-          <p className="min-h-0 overflow-hidden text-[11px] leading-[1.6] font-normal break-words whitespace-pre-wrap text-black">
+          <p tabIndex={scrollable ? 0 : undefined} role={scrollable ? 'region' : undefined} aria-label={scrollable ? '마음카드 본문' : undefined}
+            className={`min-h-0 ${scrollable ? 'overflow-y-auto overscroll-contain' : 'overflow-hidden'} text-[11px] leading-[1.6] font-normal break-words whitespace-pre-wrap text-black`}>
             {card.content}
           </p>
           <div className="flex flex-col gap-[6px] text-right text-gray-m-800">

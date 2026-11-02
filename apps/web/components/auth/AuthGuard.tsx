@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 import { useAuth } from '@/hooks/auth/useAuth';
+import { getSafeSharedReturnTo } from '@/lib/sharedLetterReturn';
 
 export const HOME_PATH = '/home';
 export const LOGIN_PATH = '/login';
@@ -31,8 +32,11 @@ export const AuthGuard = ({ allow, children }: AuthGuardProps) => {
         : null;
 
   useEffect(() => {
-    if (redirectTo) router.replace(redirectTo);
-  }, [redirectTo, router]);
+    if (redirectTo) {
+      const returnTo = allow === 'guest' ? getSafeSharedReturnTo(new URLSearchParams(window.location.search).get('next')) : null;
+      router.replace(returnTo ?? redirectTo);
+    }
+  }, [allow, redirectTo, router]);
 
   if (status === 'loading' || redirectTo) return null;
   return children;

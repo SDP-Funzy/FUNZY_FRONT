@@ -14,11 +14,12 @@ import { Popup } from '@/components/ui/Popup';
 import { useSignup } from '@/hooks/auth/useSignup';
 import { formatSignupCountdown, useSignupCountdown } from '@/hooks/auth/useSignupCountdown';
 import { ROUTES } from '@/lib/routes';
+import { authPathWithReturn } from '@/lib/sharedLetterReturn';
 
 type Step = 'email' | 'code' | 'credentials' | 'complete';
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const SignupScreen = () => {
+export const SignupScreen = ({ returnTo }: { returnTo?: string | null }) => {
   const signup = useSignup();
   const [step, setStep] = useState<Step>('email');
   const [code, setCode] = useState('');
@@ -118,13 +119,13 @@ export const SignupScreen = () => {
   return (
     <div className="flex flex-1 flex-col bg-cream">
       <div className="px-[24px] pt-[48px]">
-        <Link href={ROUTES.login} aria-label="로그인으로 돌아가기"><Image src="/images/logo-funzy-small.svg" alt="Funzy" width={83} height={56} priority /></Link>
+        <Link href={authPathWithReturn(ROUTES.login, returnTo)} aria-label="로그인으로 돌아가기"><Image src="/images/logo-funzy-small.svg" alt="Funzy" width={83} height={56} priority /></Link>
       </div>
       {step === 'complete' ? (
         <div className="flex flex-1 flex-col px-page pt-[100px]">
           <h1 ref={heading} tabIndex={-1} className="text-24 leading-[1.35] font-bold outline-none">환영합니다<br />{signup.nickname}님,</h1>
           <p role="status" className="sr-only">회원가입이 완료되었습니다. 로그인해 주세요.</p>
-          <div className="mt-auto pb-[calc(68px+env(safe-area-inset-bottom,0px))] pt-[40px]"><Button onClick={() => window.location.replace(ROUTES.login)}>로그인하기</Button></div>
+          <div className="mt-auto pb-[calc(68px+env(safe-area-inset-bottom,0px))] pt-[40px]"><Button onClick={() => window.location.replace(authPathWithReturn(ROUTES.login, returnTo))}>로그인하기</Button></div>
         </div>
       ) : (
         <form onSubmit={next} noValidate className="flex flex-1 flex-col px-page">
