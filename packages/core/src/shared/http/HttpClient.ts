@@ -29,8 +29,9 @@ const isAccessTokenExpired = (error: ApiError) => error.status === 401 && error.
 /**
  * 토큰 자체가 무효인 응답 (재발급으로도 살릴 수 없어 세션을 끝낸다)
  * AUTH_003: 유효하지 않은 토큰 / AUTH_005: 폐기된 세션 (로그아웃·비밀번호 변경·탈퇴, 교체된 토큰 재사용)
+ * AUTH_027: 비밀번호 재설정·계정 잠금 해제로 모든 세션이 종료됨
  */
-const SESSION_INVALID_CODES = ['AUTH_003', 'AUTH_005'];
+const SESSION_INVALID_CODES = ['AUTH_003', 'AUTH_005', 'AUTH_027'];
 const isSessionInvalid = (error: ApiError) => error.status === 401 && SESSION_INVALID_CODES.includes(error.code);
 
 /**
