@@ -3,23 +3,30 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { LetterCommentsSheet } from '@/components/letterbox/LetterCommentsSheet';
 import { useLetterboxPreview } from '@/components/letterbox/LetterboxPreviewProvider';
 import { Popup } from '@/components/ui/Popup';
 import { ROUTES } from '@/lib/routes';
 
-export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; letterId: string }) => {
-  const { letters, toggleFavorite, hide, unhide, comments } = useLetterboxPreview();
+export const LetterDetailScreen = ({ senderId, letterId, backHref, allowHide = true }: { senderId: string; letterId: string; backHref?: string; allowHide?: boolean }) => {
+  const { letters, toggleFavorite, hide, unhide } = useLetterboxPreview();
   const letter = letters.find(item => item.id === letterId && item.senderId === senderId);
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
   const track = useRef<HTMLDivElement>(null);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const gestureMoved = useRef(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [confirmHide, setConfirmHide] = useState(false);
   const [confirmShow, setConfirmShow] = useState(false);
   const closeComments = useCallback(() => setCommentsOpen(false), [setCommentsOpen]);
-  const back = `${ROUTES.letterbox}/${senderId}`;
-  const count = (comments[letterId] ?? []).filter(item => !item.deleted).length;
+  const back = backHref ?? `${ROUTES.letterbox}/${senderId}`;
+  const openComments = (event: MouseEvent<HTMLElement>) => {
+    if (event.detail !== 0 && gestureMoved.current) return;
+    if (window.getSelection()?.toString()) return;
+    setCommentsOpen(true);
+  };
 
   useEffect(() => {
     const node = track.current;
@@ -52,31 +59,29 @@ export const LetterDetailScreen = ({ senderId, letterId }: { senderId: string; l
         <Link href={back} aria-label="카드 상세 닫기" className="flex size-[36px] items-center justify-center rounded-control bg-white focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/close.svg" alt="" width={24} height={24} /></Link>
       </div>
       <div ref={track} role="region" aria-label="마음카드" aria-roledescription="캐러셀" tabIndex={0}
-        onScroll={event => { const node = event.currentTarget; const next = Math.min(letter.pages.length - 1, Math.max(0, Math.round(node.scrollLeft / (node.clientWidth - 36)))); activeRef.current = next; setActive(next); }}
+        onScroll={event => { gestureMoved.current = true; const node = event.currentTarget; const next = Math.min(letter.pages.length - 1, Math.max(0, Math.round(node.scrollLeft / (node.clientWidth - 36)))); activeRef.current = next; setActive(next); }}
         onKeyDown={event => { if (event.target !== event.currentTarget) return; if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); goTo(active + (event.key === 'ArrowRight' ? 1 : -1)); } }}
         className="flex snap-x snap-mandatory gap-[12px] overflow-x-auto overscroll-x-contain px-[24px] py-[6px] [scroll-padding-inline:24px] [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-orange [&::-webkit-scrollbar]:hidden">
         {letter.pages.map((page, index) => <article key={page.id} role="group" aria-roledescription="슬라이드" aria-label={`마음카드 ${index + 1}/${letter.pages.length}`} aria-hidden={index !== active} inert={index !== active}
+          onPointerDownCapture={event => { pointerStart.current = { x: event.clientX, y: event.clientY }; gestureMoved.current = false; }}
+          onPointerUpCapture={event => { const start = pointerStart.current; if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) gestureMoved.current = true; pointerStart.current = null; }}
+          onPointerCancelCapture={() => { gestureMoved.current = true; pointerStart.current = null; }}
+          onClick={event => { if (event.target instanceof Element && event.target.closest('button, a')) return; openComments(event); }}
           className="flex h-[min(58dvh,520px)] min-h-[340px] min-w-0 basis-full shrink-0 snap-center flex-col rounded-[22px] border border-white/60 bg-white/55 px-[20px] py-[24px] text-black shadow-[0_2px_10px_rgba(0,0,0,0.4)] backdrop-blur-md">
           <div className="mb-[24px] flex shrink-0 items-center justify-between gap-[8px]">
             <p className="min-w-0 font-en text-14 font-semibold break-words">To: {letter.to}</p>
             <div className="flex shrink-0">
               <button type="button" aria-label="편지 즐겨찾기" aria-pressed={letter.favorite} onClick={() => toggleFavorite(letterId)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src={letter.favorite ? '/icons/favorite-active.svg' : '/icons/favorite-inactive.svg'} alt="" width={24} height={24} /></button>
-              <button type="button" aria-label="편지 숨기기" onClick={() => setConfirmHide(true)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/letter-unlock.svg" alt="" width={26} height={26} /></button>
+              {allowHide && <button type="button" aria-label="편지 숨기기" onClick={() => setConfirmHide(true)} className="flex size-[36px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/letter-unlock.svg" alt="" width={26} height={26} /></button>}
             </div>
           </div>
-          <div tabIndex={0} role="region" aria-label={`마음카드 ${index + 1} 본문`} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[4px] text-14 leading-[1.8] break-words whitespace-pre-wrap focus-visible:outline-2 focus-visible:outline-orange">{page.content}</div>
+          <button type="button" aria-label={`마음카드 ${index + 1} 댓글 열기`} onClick={openComments} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[4px] text-left text-14 leading-[1.8] break-words whitespace-pre-wrap select-text focus-visible:outline-2 focus-visible:outline-orange">{page.content}</button>
           <div className="mt-[20px] shrink-0 text-right font-en text-14">
             <p className="font-semibold">From: {letter.sender}</p>
             <p className="mt-[6px] text-12">{letter.date.replaceAll('-', '.')}</p>
           </div>
         </article>)}
       </div>
-      <div className="mx-[24px] mt-[16px] flex items-center justify-between gap-[12px] rounded-full bg-black/45 px-[12px] text-12 text-white">
-        <button type="button" aria-label="이전 마음카드" disabled={active === 0} onClick={() => goTo(active - 1)} className="min-h-[44px] px-[10px] disabled:opacity-40">이전</button>
-        <p role="status" aria-live="polite">{active + 1} / {letter.pages.length}</p>
-        <button type="button" aria-label="다음 마음카드" disabled={active === letter.pages.length - 1} onClick={() => goTo(active + 1)} className="min-h-[44px] px-[10px] disabled:opacity-40">다음</button>
-      </div>
-      <div className="mt-[14px] px-[24px]"><button type="button" onClick={() => setCommentsOpen(true)} className="min-h-[44px] w-full rounded-full bg-gray-m-700 px-[16px] text-14 font-semibold text-white focus-visible:outline-2 focus-visible:outline-orange">댓글 {count}개 보기</button></div>
     </div>
     <Popup isOpen={confirmHide} title="편지를 숨길까요?" description="전체·즐겨찾기 목록에서 제외됩니다. 잠긴편지 목록에서 다시 표시할 수 있어요. 미리보기에서만 반영됩니다." confirmLabel="숨기기" onCancel={() => setConfirmHide(false)} onConfirm={() => { setConfirmHide(false); hide(letterId); }} />
     {commentsOpen && <LetterCommentsSheet letterId={letterId} onClose={closeComments} />}
