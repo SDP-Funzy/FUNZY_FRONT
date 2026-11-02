@@ -1,5 +1,5 @@
-import { ArchiveCollectionScreen } from '@/components/archive/ArchiveCollectionScreen';
+import { ServerArchiveCollectionScreen } from '@/components/archive/ServerArchiveCollectionScreen';
 export default async function ArchiveCollectionPage({ params }: { params: Promise<{ collectionId: string }> }) {
   const { collectionId } = await params;
-  return <ArchiveCollectionScreen key={collectionId} collectionId={collectionId} />;
+  return <ServerArchiveCollectionScreen key={collectionId} category={collectionId} />;
 }
