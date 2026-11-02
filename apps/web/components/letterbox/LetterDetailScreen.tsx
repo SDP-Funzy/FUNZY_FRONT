@@ -44,16 +44,15 @@ export const LetterDetailScreen = ({ senderId, letterId, backHref, allowHide = t
 
   if (!letter || letter.hidden) return <div className="flex flex-1 flex-col items-center justify-center gap-[20px] bg-cream px-page py-[60px] text-center">
     <h1 className="text-18 font-bold">{letter ? '숨긴 편지예요.' : '편지를 찾을 수 없어요.'}</h1>
-    <p className="text-14 text-gray-m-400">{letter ? '내용을 보려면 숨김을 해제해 주세요. 변경은 미리보기에서만 반영됩니다.' : '보관함에서 편지를 다시 선택해 주세요.'}</p>
+    <p className="text-14 text-gray-m-400">{letter ? '내용을 보려면 숨김을 해제해 주세요.' : '보관함에서 편지를 다시 선택해 주세요.'}</p>
     {letter && <button type="button" onClick={() => setConfirmShow(true)} className="min-h-[47px] w-full rounded-control bg-black px-[20px] text-14 font-semibold text-white">숨김 해제</button>}
     <Link href={back} className="flex min-h-[44px] items-center justify-center px-[12px] text-14 underline underline-offset-4">카드 목록으로 돌아가기</Link>
-    <Popup isOpen={confirmShow} title="편지 숨김을 해제할까요?" description="전체 목록에 다시 표시됩니다. 서버에는 저장되지 않아요." confirmLabel="숨김 해제" onCancel={() => setConfirmShow(false)} onConfirm={() => { unhide(letterId); setConfirmShow(false); }} />
+    <Popup isOpen={confirmShow} title="편지 숨김을 해제할까요?" description="전체 목록에 다시 표시됩니다." confirmLabel="숨김 해제" onCancel={() => setConfirmShow(false)} onConfirm={() => { unhide(letterId); setConfirmShow(false); }} />
   </div>;
 
   return <div className="relative isolate flex min-h-dvh flex-1 flex-col justify-center overflow-hidden bg-gray-m-100 pb-safe md:min-h-full">
     <Image src={letter.image} alt="" fill sizes="(min-width: 768px) 402px, 100vw" priority className="-z-10 object-cover" />
     <h1 className="sr-only">{letter.sender}의 편지 상세</h1>
-    <p className="absolute inset-x-[20px] top-[16px] rounded-full bg-white/85 px-[12px] py-[8px] text-center text-12 text-gray-m-500">샘플 카드 · 변경사항은 저장되지 않아요.</p>
     <div className="py-[72px]">
       <div className="mb-[10px] flex justify-end px-[24px]">
         <Link href={back} aria-label="카드 상세 닫기" className="flex size-[36px] items-center justify-center rounded-control bg-white focus-visible:outline-2 focus-visible:outline-orange"><Image src="/icons/close.svg" alt="" width={24} height={24} /></Link>
@@ -83,7 +82,7 @@ export const LetterDetailScreen = ({ senderId, letterId, backHref, allowHide = t
         </article>)}
       </div>
     </div>
-    <Popup isOpen={confirmHide} title="편지를 숨길까요?" description="전체·즐겨찾기 목록에서 제외됩니다. 잠긴편지 목록에서 다시 표시할 수 있어요. 미리보기에서만 반영됩니다." confirmLabel="숨기기" onCancel={() => setConfirmHide(false)} onConfirm={() => { setConfirmHide(false); hide(letterId); }} />
+    <Popup isOpen={confirmHide} title="편지를 숨길까요?" description="전체·즐겨찾기 목록에서 제외됩니다. 잠긴편지 목록에서 다시 표시할 수 있어요." confirmLabel="숨기기" onCancel={() => setConfirmHide(false)} onConfirm={() => { setConfirmHide(false); hide(letterId); }} />
     {commentsOpen && <LetterCommentsSheet letterId={letterId} onClose={closeComments} />}
   </div>;
 };
