@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { useWriteDraft } from '@/hooks/write/useWriteDraft';
+import { useGiftDraft } from '@/hooks/write/useGiftDraft';
 import { ROUTES } from '@/lib/routes';
 
 /** 봉투가 닫히는 장면 (Figma 전송 완료 3장면) */
@@ -20,12 +21,14 @@ const FRAME_INTERVAL_MS = 550;
 export const SentScreen = () => {
   const router = useRouter();
   const { reset } = useWriteDraft();
+  const { reset: resetGift } = useGiftDraft();
   const [frameIndex, setFrameIndex] = useState(0);
 
   // 보낸 편지는 작성 내용에서 비운다. 뒤로 가기로 작성 화면에 돌아가도 같은 편지를 다시 보낼 수 없다
   useEffect(() => {
     reset();
-  }, [reset]);
+    resetGift();
+  }, [reset, resetGift]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
