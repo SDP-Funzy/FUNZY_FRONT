@@ -4,6 +4,7 @@ import { createContext, useContext, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { createPreviewComments, createPreviewLetters } from '@/lib/letterboxPreview';
 import type { LetterboxTab, PreviewComment } from '@/lib/letterboxPreview';
+import { createReceivedGiftPacks, selectReceivedGift } from '@/lib/receivedGifts';
 
 const usePreviewValue = () => {
   const [letters, setLetters] = useState(createPreviewLetters);
@@ -11,6 +12,8 @@ const usePreviewValue = () => {
   const [query, setQuery] = useState('');
   const [date, setDate] = useState<string | null>(null);
   const [comments, setComments] = useState(createPreviewComments);
+  const [giftPacks, setGiftPacks] = useState(createReceivedGiftPacks);
+  const chooseGift = (senderId: string, giftId: string) => setGiftPacks(current => selectReceivedGift(current, senderId, giftId));
   const commentPrefix = useId();
   const commentSequence = useRef(0);
   const toggleFavorite = (id: string) => setLetters(current => current.map(letter => letter.id === id ? { ...letter, favorite: !letter.favorite } : letter));
@@ -38,7 +41,7 @@ const usePreviewValue = () => {
     [letterId]: (current[letterId] ?? []).map(item => item.id === id && !item.deleted ? { ...item, favorite: !item.favorite } : item),
   }));
   return { letters, tab, setTab, query, setQuery, date, setDate, toggleFavorite, unhide, hide,
-    comments, addComment, editComment, deleteComment, toggleCommentFavorite };
+    comments, addComment, editComment, deleteComment, toggleCommentFavorite, giftPacks, chooseGift };
 };
 const PreviewContext = createContext<ReturnType<typeof usePreviewValue> | null>(null);
 export const LetterboxPreviewProvider = ({ children }: { children: ReactNode }) => {

@@ -12,7 +12,7 @@ const useGiftDraftValue = () => {
   const [state, dispatch] = useReducer(giftDraftReducer, undefined, createGiftDraft);
   const [photos, setPhotos] = useState<Record<string, GiftPhoto>>({});
   const photosRef = useRef(photos);
-  const idCounter = useRef(2);
+  const idCounter = useRef(MIN_GIFT_CARDS);
 
   useEffect(() => { photosRef.current = photos; }, [photos]);
   useEffect(() => () => { Object.values(photosRef.current).forEach(photo => URL.revokeObjectURL(photo.url)); }, []);
