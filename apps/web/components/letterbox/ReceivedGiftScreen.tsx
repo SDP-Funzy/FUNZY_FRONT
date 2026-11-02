@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import type { PointerEvent } from 'react';
+import { useState } from 'react';
+import { useCardCarousel } from '@/hooks/common/useCardCarousel';
 import { useLetterboxPreview } from '@/components/letterbox/LetterboxPreviewProvider';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
@@ -13,40 +13,12 @@ export const ReceivedGiftScreen = ({ senderId }: { senderId: string }) => {
   const { giftPacks, chooseGift } = useLetterboxPreview();
   const pack = giftPacks.find(item => item.senderId === senderId);
   const initial = pack?.selectedGiftId ? Math.max(0, pack.gifts.findIndex(gift => gift.id === pack.selectedGiftId) + 1) : 0;
-  const [active, setActive] = useState(initial);
-  const activeRef = useRef(initial);
-  const track = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ pointerId: number; x: number; scrollLeft: number; index: number; moved: boolean } | null>(null);
-  const suppressClick = useRef(false);
+  const { active, track, handlers } = useCardCarousel((pack?.gifts.length ?? 0) + 1, initial);
   const [candidateId, setCandidateId] = useState(pack?.selectedGiftId ?? null);
   const [announcement, setAnnouncement] = useState('');
   const back = `${ROUTES.letterbox}/${senderId}`;
-  useEffect(() => {
-    const node = track.current;
-    if (!node) return;
-    const observer = new ResizeObserver(() => node.scrollTo({ left: activeRef.current * (node.clientWidth - 48), behavior: 'instant' }));
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
   if (!pack?.gifts.length) return <div className="flex flex-1 flex-col items-center justify-center gap-[20px] bg-cream px-page"><h1 className="text-18 font-semibold">선물카드를 찾을 수 없어요.</h1><Link href={back} className="flex min-h-[44px] items-center text-14 underline">보관함으로 돌아가기</Link></div>;
   const currentGift = pack.gifts[active - 1];
-  const move = (index: number) => {
-    const node = track.current;
-    if (!node) return;
-    node.scrollTo({ left: Math.max(0, Math.min(pack.gifts.length, index)) * (node.clientWidth - 48), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-  };
-  const finishDrag = (event: PointerEvent<HTMLDivElement>, cancelled = false) => {
-    const current = drag.current;
-    if (!current || current.pointerId !== event.pointerId) return;
-    const node = event.currentTarget;
-    drag.current = null;
-    node.style.scrollSnapType = '';
-    if (node.hasPointerCapture(event.pointerId)) node.releasePointerCapture(event.pointerId);
-    if (!current.moved) return;
-    suppressClick.current = true;
-    const distance = event.clientX - current.x;
-    move(cancelled ? Math.round(node.scrollLeft / (node.clientWidth - 48)) : current.index + (Math.abs(distance) > 40 ? distance < 0 ? 1 : -1 : 0));
-  };
   return <div className="flex min-h-dvh flex-none flex-col bg-gray-pc-800 py-[32px] text-white md:min-h-full">
     <div className="shrink-0 px-[24px]"><Image src="/images/logo-funzy-orange.png" alt="Funzy" width={74} height={56} className="h-[56px] w-[74px] object-contain" />
       <h1 className="mt-[20px] text-24 font-bold">카드가 도착했어요</h1>
@@ -56,32 +28,7 @@ export const ReceivedGiftScreen = ({ senderId }: { senderId: string }) => {
     </div>
     <p id="received-gift-help" className="sr-only">카드를 좌우로 넘기거나 방향키로 이동한 뒤 원하는 선물을 선택하세요.</p>
     <div ref={track} role="region" aria-label="받은 선물카드" aria-describedby="received-gift-help" tabIndex={0}
-      onPointerDownCapture={event => {
-        if (event.button !== 0) return;
-        suppressClick.current = false;
-        if (event.pointerType !== 'mouse') return;
-        drag.current = { pointerId: event.pointerId, x: event.clientX, scrollLeft: event.currentTarget.scrollLeft, index: activeRef.current, moved: false };
-      }}
-      onPointerMoveCapture={event => {
-        const current = drag.current;
-        if (!current || current.pointerId !== event.pointerId) return;
-        if (!(event.buttons & 1)) { drag.current = null; return; }
-        const distance = event.clientX - current.x;
-        if (!current.moved && Math.abs(distance) < 6) return;
-        current.moved = true;
-        const node = event.currentTarget;
-        node.style.scrollSnapType = 'none';
-        if (!node.hasPointerCapture(event.pointerId)) node.setPointerCapture(event.pointerId);
-        event.preventDefault();
-        node.scrollLeft = current.scrollLeft - distance;
-      }}
-      onPointerUpCapture={event => finishDrag(event)}
-      onPointerCancelCapture={event => finishDrag(event, true)}
-      onLostPointerCapture={event => finishDrag(event, true)}
-      onClickCapture={event => { if (suppressClick.current && event.detail > 0) { event.preventDefault(); event.stopPropagation(); } }}
-      onDragStart={event => event.preventDefault()}
-      onScroll={event => { const node = event.currentTarget; const index = Math.min(pack.gifts.length, Math.max(0, Math.round(node.scrollLeft / (node.clientWidth - 48)))); activeRef.current = index; setActive(index); }}
-      onKeyDown={event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); event.currentTarget.focus(); move(active + (event.key === 'ArrowLeft' ? -1 : 1)); } }}
+      {...handlers}
       className="mt-[26px] flex shrink-0 cursor-grab snap-x snap-mandatory gap-[16px] overflow-x-auto overscroll-x-contain px-[32px] py-[4px] select-none [scroll-padding-inline:32px] [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-orange active:cursor-grabbing [&::-webkit-scrollbar]:hidden">
       <article aria-label="선물 안내" aria-hidden={active !== 0} inert={active !== 0} className="flex h-[clamp(300px,calc(100dvh_-_340px),520px)] min-w-0 basis-full shrink-0 snap-center flex-col justify-between rounded-[20px] bg-orange p-[24px]">
         <div><p className="text-12">두들픽을 pick해주세요</p><p className="mt-[12px] text-24 font-semibold leading-[1.4]">여기서부터는<br />선물카드예요.</p></div>
