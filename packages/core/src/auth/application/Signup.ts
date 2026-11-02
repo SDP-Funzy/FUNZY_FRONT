@@ -80,6 +80,7 @@ export const createSignupFlow = (repository: SignupRepository, now = Date.now) =
 
   return {
     getSnapshot: () => state,
+    clearError: () => { if (!state.pending) update({ error: null }); },
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => { listeners.delete(listener); };
