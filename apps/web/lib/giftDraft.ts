@@ -1,4 +1,4 @@
-export const MIN_GIFT_CARDS = 2;
+export const MIN_GIFT_CARDS = 1;
 export const MAX_GIFT_CARDS = 3;
 export type GiftPoint = { x: number; y: number };
 export type GiftTool = 'pen' | 'eraser';
@@ -21,7 +21,7 @@ export type GiftDraftAction =
   | { type: 'reset' };
 
 export const createGiftDraft = (): GiftDraftState => ({
-  cards: [{ id: 'gift-0', strokes: [] }, { id: 'gift-1', strokes: [] }], index: 0,
+  cards: [{ id: 'gift-0', strokes: [] }], index: 0,
 });
 
 export const normalizeGiftPoint = (x: number, y: number, width: number, height: number): GiftPoint => ({

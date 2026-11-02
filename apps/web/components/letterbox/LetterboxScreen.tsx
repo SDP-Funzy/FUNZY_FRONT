@@ -13,7 +13,7 @@ import type { LetterboxTab } from '@/lib/letterboxPreview';
 import { ROUTES } from '@/lib/routes';
 
 export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
-  const { letters, tab, setTab, query, setQuery, date, setDate, toggleFavorite, unhide } = useLetterboxPreview();
+  const { letters, tab, setTab, query, setQuery, date, setDate, toggleFavorite, unhide, giftPacks } = useLetterboxPreview();
   const [searchOpen, setSearchOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [restoreId, setRestoreId] = useState<string | null>(null);
@@ -84,6 +84,9 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
     {(senderId ? cards.length === 0 : groups.length === 0) && <div className="px-page py-[60px] text-center text-14 text-gray-m-400">
       <p>{senderId && !sender ? '보낸 사람을 찾을 수 없어요.' : '조건에 맞는 편지가 없어요.'}</p>
       <button type="button" onClick={reset} className="mt-[16px] min-h-[44px] rounded-control border border-gray-m-200 px-[16px] text-black">필터 초기화</button>
+    </div>}
+    {senderId && tab !== 'hidden' && cards.some(card => !card.hidden) && giftPacks.some(pack => pack.senderId === senderId && pack.gifts.length) && <div className="mt-auto flex justify-center px-page pt-[36px]">
+      <Link href={`${ROUTES.letterbox}/${senderId}/gifts`} className="flex min-h-[44px] items-center justify-center rounded-control bg-orange px-[22px] text-14 font-semibold text-white focus-visible:outline-2 focus-visible:outline-orange">선물카드 보러가기</Link>
     </div>}
     <Popup isOpen={restoreId !== null} title="편지 숨김을 해제할까요?" description="전체 목록에 다시 표시됩니다." confirmLabel="숨김 해제" onCancel={() => setRestoreId(null)} onConfirm={() => { if (restoreId) unhide(restoreId); setRestoreId(null); }} />
   </div>;
