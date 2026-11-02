@@ -25,10 +25,15 @@ const pagination = (page: number) => {
   if (!Number.isInteger(page) || page < 0) throw new ApiError(400, 'COMMON_002', '페이지 번호를 확인해 주세요.');
   return { page, size: 20 };
 };
+const homeResponse = (value: ArchiveHome): ArchiveHome => {
+  if (!value || !Array.isArray(value.sections) || typeof value.nickname !== 'string' || value.sections.some(section => !HEART_CARD_CATEGORIES.includes(section.category) || !Array.isArray(section.cards) || section.cards.some(card => !Number.isSafeInteger(card.archiveCardId) || card.archiveCardId <= 0 || !Number.isSafeInteger(card.letterCardId) || card.letterCardId <= 0))) throw invalid();
+  return value;
+};
 export const createHttpArchiveRepository = (http: HttpClient): ArchiveRepository => ({
-  home: async () => {
-    const value = await http.get<ArchiveHome>('/api/archive/home');
-    if (!value || !Array.isArray(value.sections) || typeof value.nickname !== 'string' || value.sections.some(section => !HEART_CARD_CATEGORIES.includes(section.category) || !Array.isArray(section.cards) || section.cards.some(card => !Number.isSafeInteger(card.archiveCardId) || card.archiveCardId <= 0 || !Number.isSafeInteger(card.letterCardId) || card.letterCardId <= 0))) throw invalid();
+  home: async () => homeResponse(await http.get<ArchiveHome>('/api/archive/home')),
+  friendHome: async id => {
+    const value = homeResponse(await http.get<ArchiveHome>(`/api/archive/friends/${archiveId(id)}/home`));
+    if (value.memberId !== id) throw invalid();
     return value;
   },
   detail: async id => {

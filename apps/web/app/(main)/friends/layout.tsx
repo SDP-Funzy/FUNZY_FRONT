@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { FriendsPreviewProvider } from '@/components/friends/FriendsPreviewProvider';
+import { FriendsApiProvider } from '@/components/friends/FriendsApiProvider';
 
 export default function FriendsLayout({ children }: { children: ReactNode }) {
-  return <FriendsPreviewProvider>{children}</FriendsPreviewProvider>;
+  return <FriendsApiProvider>{children}</FriendsApiProvider>;
 }

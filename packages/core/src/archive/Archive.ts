@@ -8,6 +8,7 @@ export type ArchiveComment = { commentId: number; parentCommentId: number | null
 export type ArchiveCommentPage = { comments: ArchiveComment[]; page: number; last: boolean; totalElements: number; totalPages: number };
 export type ArchiveRepository = {
   home(): Promise<ArchiveHome>;
+  friendHome(memberId: number): Promise<ArchiveHome>;
   detail(cardId: number): Promise<ArchiveCardDetail>;
   comments(cardId: number, page?: number): Promise<ArchiveCommentPage>;
   replies(cardId: number, commentId: number, page?: number): Promise<ArchiveCommentPage>;

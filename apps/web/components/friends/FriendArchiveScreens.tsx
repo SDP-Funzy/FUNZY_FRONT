@@ -1,19 +1,14 @@
 'use client';
-
-import { ArchiveCollectionScreen } from '@/components/archive/ArchiveCollectionScreen';
-import { ArchiveDetailScreen } from '@/components/archive/ArchiveDetailScreen';
-import { ArchiveScreen } from '@/components/archive/ArchiveScreen';
-import { useFriendsPreview } from '@/components/friends/FriendsPreviewProvider';
-import { ROUTES } from '@/lib/routes';
-
-export const FriendArchiveHome = ({ memberId }: { memberId: string }) => {
-  const { members } = useFriendsPreview();
-  const member = members.find(item => item.id === memberId);
-  if (!member || member.relation !== 'friend') return null;
-  return <ArchiveScreen readOnly title={`${member.name}의 아카이브`} avatarSrc={member.avatar} baseHref={`${ROUTES.friends}/${memberId}`} profileHref={ROUTES.friends} />;
+import Link from 'next/link';
+import { useArchiveApi } from '@/components/archive/ArchiveApiProvider';
+import { ServerArchiveScreen } from '@/components/archive/ServerArchiveScreen';
+import { ServerArchiveCollectionScreen } from '@/components/archive/ServerArchiveCollectionScreen';
+import { ServerArchiveDetailScreen } from '@/components/archive/ServerArchiveDetailScreen';
+export const FriendArchiveHome = ({ memberId }: { memberId: string }) => <ServerArchiveScreen key={memberId} />;
+export const FriendArchiveCollection = ({ collectionId }: { memberId: string; collectionId: string }) => <ServerArchiveCollectionScreen key={collectionId} category={collectionId} />;
+export const FriendArchiveDetail = ({ collectionId, entryId }: { memberId: string; collectionId: string; entryId: string }) => {
+  const archive = useArchiveApi();
+  const exists = archive.data?.sections.some(section => section.category === collectionId && section.cards.some(card => String(card.archiveCardId) === entryId));
+  if (!exists) return <div className="flex flex-1 flex-col items-center justify-center gap-[20px] bg-cream"><p>카드를 찾을 수 없어요.</p><Link href={archive.baseHref} className="min-h-[44px] underline">친구 아카이브로 돌아가기</Link></div>;
+  return <ServerArchiveDetailScreen key={entryId} id={entryId} />;
 };
-export const FriendArchiveCollection = ({ memberId, collectionId }: { memberId: string; collectionId: string }) =>
-  <ArchiveCollectionScreen readOnly collectionId={collectionId} baseHref={`${ROUTES.friends}/${memberId}`} />;
-
-export const FriendArchiveDetail = ({ memberId, collectionId, entryId }: { memberId: string; collectionId: string; entryId: string }) =>
-  <ArchiveDetailScreen readOnly collectionId={collectionId} entryId={entryId} baseHref={`${ROUTES.friends}/${memberId}`} />;

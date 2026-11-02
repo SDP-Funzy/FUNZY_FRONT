@@ -33,19 +33,19 @@ const CardBody = ({ card, owned, openComments }: { card: ArchiveCardDetail; owne
 const DetailSlide = ({ id, enabled, owned, openComments }: { id: number; enabled: boolean; owned: boolean; openComments: () => void }) => {
   const loader = useCallback(() => archiveRepository.detail(id), [id]);
   const resource = useApiResource(`archive-card:${id}`, loader, enabled);
-  return resource.data ? <CardBody card={resource.data} owned={owned} openComments={openComments} /> : <ArchiveApiState error={resource.error} retry={resource.reload} />;
+  return !resource.error && resource.data ? <CardBody card={resource.data} owned={owned} openComments={openComments} /> : <ArchiveApiState error={resource.error} retry={resource.reload} />;
 };
 export const ServerArchiveDetailScreen = ({ id, commentsInitiallyOpen = false }: { id: string; commentsInitiallyOpen?: boolean }) => {
   const archive = useArchiveApi();
   const loader = useCallback(() => archiveRepository.detail(letterRouteId(id)), [id]);
-  const detail = useApiResource(`archive-entry:${id}`, loader);
   const numericId = /^\d+$/.test(id) && Number.isSafeInteger(Number(id)) && Number(id) > 0 ? Number(id) : null;
   const section = archive.data?.sections.find(group => group.cards.some(card => card.archiveCardId === numericId));
+  const detail = useApiResource(`archive-entry:${id}`, loader, !archive.readOnly || !!section);
   const ids = section?.cards.map(card => card.archiveCardId) ?? (numericId ? [numericId] : []);
   // 홈 조회가 끝난 뒤 카드 목록을 결정해 초기 스와이프 위치를 유지한다.
-  if (!detail.data || !numericId) return <ArchiveApiState error={detail.error} retry={detail.reload} />;
+  if (detail.error || !detail.data || !numericId) return <ArchiveApiState error={detail.error} retry={detail.reload} />;
   if (!archive.data && !archive.error) return <ArchiveApiState error={null} retry={archive.reload} />;
-  return <Reader key={`${id}:${ids.join(',')}`} ids={ids} initialId={numericId} owned={!!section} back={section ? `/archive/${section.category}` : '/archive'} photos={section?.cards.map(card => card.imageUrl) ?? [detail.data.imageUrl]} commentsInitiallyOpen={commentsInitiallyOpen} />;
+  return <Reader key={`${id}:${ids.join(',')}`} ids={ids} initialId={numericId} owned={!archive.readOnly && !!section} back={section ? `${archive.baseHref}/${section.category}` : archive.baseHref} photos={section?.cards.map(card => card.imageUrl) ?? [detail.data.imageUrl]} commentsInitiallyOpen={commentsInitiallyOpen} />;
 };
 const Reader = ({ ids, initialId, owned, back, photos, commentsInitiallyOpen }: { ids: number[]; initialId: number; owned: boolean; back: string; photos: (string | null)[]; commentsInitiallyOpen: boolean }) => {
   const { active, track, handlers } = useCardCarousel(ids.length, Math.max(0, ids.indexOf(initialId)), 36);

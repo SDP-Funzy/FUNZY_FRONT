@@ -2,14 +2,24 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
+import { normalizeFriendSearch } from '@sdp/core';
 import { FriendAvatar } from '@/components/friends/FriendAvatar';
-import { useFriendsPreview } from '@/components/friends/FriendsPreviewProvider';
-import { normalizeFriendQuery, searchPreviewFriends } from '@/lib/friendsPreview';
+import { useFriendsApi } from '@/components/friends/FriendsApiProvider';
+import { useApiResource } from '@/hooks/common/useApiResource';
+import { friendsRepository } from '@/lib/friendsService';
+import { letterFailure, letterImageUrl } from '@/lib/letterService';
 import { ROUTES } from '@/lib/routes';
 
 export const FriendSearchScreen = () => {
-  const { members, query, setQuery } = useFriendsPreview();
-  const results = searchPreviewFriends(members, query);
+  const { query, setQuery } = useFriendsApi();
+  const normalized = normalizeFriendSearch(query);
+  const [debounced, setDebounced] = useState(normalized);
+  useEffect(() => { const timer = setTimeout(() => setDebounced(normalized), 400); return () => clearTimeout(timer); }, [normalized]);
+  const loader = useCallback(() => friendsRepository.search(debounced), [debounced]);
+  const ready = normalized.length >= 2 && normalized === debounced;
+  const resource = useApiResource(`friend-search:${debounced}`, loader, ready);
+  const results = resource.error ? [] : resource.data ?? [];
   return <div className="flex flex-1 flex-col bg-cream px-[24px] pt-[16px] pb-[32px]">
     <h1 className="sr-only">친구 찾기</h1>
     <Link href={ROUTES.home} aria-label="홈으로 돌아가기" className="w-fit rounded-control focus-visible:outline-2 focus-visible:outline-orange"><Image src="/images/logo-funzy-small.svg" alt="Funzy" width={83} height={56} priority /></Link>
@@ -20,10 +30,13 @@ export const FriendSearchScreen = () => {
         className="min-h-[48px] min-w-0 flex-1 bg-transparent text-14 text-gray-m-600 outline-none placeholder:text-gray-m-400" />
     </form>
     <ul aria-label="친구 검색 결과" className="mt-[8px]">
-      {results.map(member => <li key={member.id}><Link href={`${ROUTES.friends}/${member.id}`} aria-label={`@${member.loginId} 아카이브 보기`} className="flex min-h-[68px] items-center gap-[12px] rounded-control px-[8px] focus-visible:outline-2 focus-visible:outline-orange">
-        <FriendAvatar src={member.avatar} /><span className="min-w-0 truncate text-14 text-gray-m-700">@{member.loginId}</span>
+      {results.map(member => <li key={member.memberId}><Link href={`${ROUTES.friends}/${member.memberId}`} aria-label={`@${member.nickname} 아카이브 보기`} className="flex min-h-[68px] items-center gap-[12px] rounded-control px-[8px] focus-visible:outline-2 focus-visible:outline-orange">
+        <FriendAvatar src={letterImageUrl(member.profileImageUrl) ?? null} /><span className="min-w-0 truncate text-14 text-gray-m-700">@{member.nickname}</span>
       </Link></li>)}
     </ul>
-    {!!normalizeFriendQuery(query) && !results.length && <p role="status" className="py-[36px] text-center text-14 text-gray-m-400">검색 결과가 없어요.</p>}
+    {!!normalized && normalized.length < 2 && <p role="status" className="py-[24px] text-center text-14 text-gray-m-400">아이디를 2자 이상 입력해 주세요.</p>}
+    {normalized.length >= 2 && (!ready || resource.loading) && <p role="status" className="py-[24px] text-center text-14 text-gray-m-400">검색하고 있어요.</p>}
+    {!!resource.error && <div className="py-[24px] text-center text-14"><p role="alert" className="text-error">{letterFailure(resource.error)}</p><button type="button" onClick={resource.reload} className="mt-[12px] min-h-[44px] underline">다시 검색</button></div>}
+    {ready && resource.data && !resource.loading && !resource.error && !results.length && <p role="status" className="py-[36px] text-center text-14 text-gray-m-400">검색 결과가 없어요.</p>}
   </div>;
 };
