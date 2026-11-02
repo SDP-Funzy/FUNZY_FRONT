@@ -15,7 +15,7 @@ type AppFrameProps = {
  */
 export const AppFrame = ({ children }: AppFrameProps) => {
   return (
-    <div className="relative mx-auto flex min-h-dvh w-full flex-col md:h-dvh md:max-w-[402px] md:overflow-hidden md:border-x md:border-gray-pc-200">
+    <div className="app-frame relative mx-auto flex min-h-dvh w-full flex-col md:h-dvh md:max-w-[402px] md:overflow-hidden md:border-x md:border-gray-pc-200">
       <main className="flex flex-1 flex-col pt-safe md:overflow-y-auto">{children}</main>
       <div id={OVERLAY_ROOT_ID} className="pointer-events-none fixed inset-0 z-50 md:absolute" />
     </div>

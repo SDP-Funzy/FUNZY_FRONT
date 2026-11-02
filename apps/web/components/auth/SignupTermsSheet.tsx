@@ -5,6 +5,7 @@ import type { RefObject } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/Button';
+import { PolicyDocument } from '@/components/legal/PolicyDocument';
 import { useOverlayRoot } from '@/hooks/common/useOverlayRoot';
 
 export type SignupConsents = { terms: boolean; privacy: boolean; age14: boolean };
@@ -20,8 +21,8 @@ type Props = {
 };
 
 const ITEMS = [
-  { key: 'terms', label: '이용약관 동의 (필수)', description: 'Funzy는 소중한 사람에게 편지를 보내고 보관하는 서비스입니다. 이 내용은 화면 확인용 임시 안내이며 정식 이용약관이 아닙니다. 정식 약관 확정 시 이용 조건과 서비스 운영 기준을 안내할 예정입니다.' },
-  { key: 'privacy', label: '개인정보 수집 및 이용 동의 (필수)', description: '이 내용은 화면 확인용 임시 안내이며 정식 개인정보 수집·이용 동의문이 아닙니다. 실제 서비스 제공 전 수집 항목, 이용 목적, 보유 기간과 문의처를 확정해 안내할 예정입니다.' },
+  { key: 'terms', label: '이용약관 동의 (필수)', document: 'terms' },
+  { key: 'privacy', label: '개인정보 수집 및 이용 동의 (필수)', document: 'privacy' },
   { key: 'age14', label: '만 14세 이상입니다 (필수)' },
 ] as const;
 
@@ -47,7 +48,7 @@ export const SignupTermsSheet = ({ open, pending, value, error, onChange, onClos
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !latest.current.pending) latest.current.onClose();
       if (event.key !== 'Tab') return;
-      const items = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [href]');
+      const items = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [href], [tabindex="0"]');
       if (!items?.length) { event.preventDefault(); return; }
       const first = items[0];
       const last = items[items.length - 1];
@@ -88,16 +89,16 @@ export const SignupTermsSheet = ({ open, pending, value, error, onChange, onClos
           <button type="button" disabled={pending} onClick={onClose} aria-label="약관 동의 닫기" className="p-[4px] text-18">×</button>
         </div>
         {checkbox('전체 동의합니다', all, (checked) => onChange({ terms: checked, privacy: checked, age14: checked }))}
-        <p className="mt-[12px] mb-[24px] text-12 leading-[1.6] text-gray-m-500">각 항목의 내용을 확인하고 동의해 주세요. 아래 약관 내용은 화면 확인용 임시 안내입니다.</p>
+        <p className="mt-[12px] mb-[24px] text-12 leading-[1.6] text-gray-m-500">각 항목의 내용을 확인하고 동의해 주세요.</p>
         <div className="flex flex-col gap-[16px] border-t border-gray-m-100 pt-[24px]">
           {ITEMS.map((item) => (
             <div key={item.key}>
               <div className="flex items-center justify-between gap-[8px]">
                 {checkbox(item.label, value[item.key], (checked) => onChange({ ...value, [item.key]: checked }))}
-                {'description' in item && <button type="button" disabled={pending} aria-expanded={expanded === item.key}
+                {'document' in item && <button type="button" disabled={pending} aria-expanded={expanded === item.key}
                   aria-label={`${item.label} 내용 보기`} onClick={() => setExpanded(expanded === item.key ? null : item.key)} className="shrink-0 p-[4px] text-12 underline">보기</button>}
               </div>
-              {'description' in item && expanded === item.key && <p className="mt-[12px] rounded-control bg-gray-pc-100 p-[12px] text-12 leading-[1.7]">{item.description}</p>}
+              {'document' in item && expanded === item.key && <div role="region" aria-label={`${item.label} 본문`} tabIndex={0} className="mt-[12px] max-h-[40dvh] overflow-y-auto overscroll-contain rounded-control bg-gray-pc-100 p-[12px] focus-visible:outline-2 focus-visible:outline-orange"><PolicyDocument kind={item.document} /></div>}
             </div>
           ))}
         </div>
