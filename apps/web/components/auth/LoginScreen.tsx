@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { login } from '@/lib/authService';
 import { ROUTES } from '@/lib/routes';
 import { authPathWithReturn } from '@/lib/sharedLetterReturn';
+import { dismissPasswordChangeNotice, hasPasswordChangeNotice } from '@/lib/passwordChangeNotice';
 
 type NoticeMessage = {
   title: string;
@@ -41,7 +42,7 @@ export const LoginScreen = ({ returnTo }: { returnTo?: string | null }) => {
   const router = useRouter();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
-  const [notice, setNotice] = useState<NoticeMessage | null>(null);
+  const [notice, setNotice] = useState<NoticeMessage | null>(() => hasPasswordChangeNotice() ? { title: '비밀번호를 변경했어요', description: '모든 기기에서 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.' } : null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { markLoggedIn } = useAuth();
@@ -160,8 +161,9 @@ export const LoginScreen = ({ returnTo }: { returnTo?: string | null }) => {
         description={notice?.description}
         confirmLabel={notice?.recoveryPath ? '잠금 해제하기' : '확인'}
         showCancel={false}
-        onCancel={() => setNotice(null)}
+        onCancel={() => { dismissPasswordChangeNotice(); setNotice(null); }}
         onConfirm={() => {
+          dismissPasswordChangeNotice();
           if (notice?.recoveryPath) router.push(notice.recoveryPath);
           setNotice(null);
         }}
