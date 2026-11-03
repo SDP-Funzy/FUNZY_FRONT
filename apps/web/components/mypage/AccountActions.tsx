@@ -18,7 +18,7 @@ export const AccountActions = () => {
   const withdraw = action === 'withdraw';
   return (
     <>
-      <footer className="mt-auto px-page pt-[40px] pb-[calc(68px+env(safe-area-inset-bottom,0px))]">
+      <footer className="mt-auto px-page pt-[40px] pb-[calc(34px+env(safe-area-inset-bottom,0px))]">
         <Button disabled={pending} onClick={() => setAction('logout')}>{pending ? '로그아웃 중...' : '로그아웃'}</Button>
         <button type="button" disabled={pending} onClick={() => setAction('withdraw')} className="mx-auto mt-[16px] block p-[4px] text-12 text-gray-m-300 underline">회원탈퇴</button>
       </footer>
