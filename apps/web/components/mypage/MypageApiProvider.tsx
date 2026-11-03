@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useApiResource } from '@/hooks/common/useApiResource';
 import { profileRepository } from '@/lib/profileService';
+import { useProfileChanges } from '@/hooks/mypage/useProfileChanges';
 
 const useMypageValue = () => {
   const { status } = useAuth();
@@ -11,7 +12,8 @@ const useMypageValue = () => {
   const loadConnected = useCallback(() => profileRepository.connected(), []);
   const profile = useApiResource(`mypage-profile:${status}`, loadProfile, status === 'authenticated');
   const connected = useApiResource(`mypage-connected:${status}`, loadConnected, status === 'authenticated');
-  return { profile, connected };
+  const editor = useProfileChanges(profile, status === 'authenticated');
+  return { profile, connected, editor };
 };
 const MypageApiContext = createContext<ReturnType<typeof useMypageValue> | null>(null);
 export const MypageApiProvider = ({ children }: { children: ReactNode }) => <MypageApiContext.Provider value={useMypageValue()}>{children}</MypageApiContext.Provider>;
