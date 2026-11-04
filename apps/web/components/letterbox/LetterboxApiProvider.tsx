@@ -1,14 +1,17 @@
 'use client';
 
-import { createReceivedLettersStore } from '@sdp/core';
+import { createFavoriteReceivedLettersStore, createReceivedLettersStore } from '@sdp/core';
 import { createContext, useContext, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { letterRepository } from '@/lib/letterService';
+import { apiClient } from '@/lib/apiClient';
 
 const useLetterboxValue = () => {
-  const [store] = useState(() => createReceivedLettersStore(letterRepository));
+  const [tab, setTab] = useState<'all' | 'favorites' | 'hidden'>('all');
+  const [receivedStore] = useState(() => createReceivedLettersStore(letterRepository));
+  const [favoritesStore] = useState(() => createFavoriteReceivedLettersStore(letterRepository, apiClient));
+  const store = tab === 'favorites' ? favoritesStore : receivedStore;
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-  const [tab, setTab] = useState<'all' | 'hidden'>('all');
   const [query, setQuery] = useState('');
   const [date, setDate] = useState<string | null>(null);
   return { store, state, tab, setTab, query, setQuery, date, setDate };
