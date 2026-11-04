@@ -40,7 +40,7 @@ export const LetterboxScreen = ({ senderId }: { senderId?: string }) => {
     </div>
     {!senderId && <>
       <div role="group" aria-label="편지 분류" className="flex flex-wrap gap-[9px] px-[24px] pt-[24px]">
-        {([{ value: 'all', label: '전체' }, { value: 'favorites', label: '즐겨찾기' }, { value: 'hidden', label: '잠긴편지' }] as { value: LetterboxTab; label: string }[]).map(item =>
+        {([{ value: 'all', label: '전체' }, { value: 'hidden', label: '잠긴편지' }] as { value: LetterboxTab; label: string }[]).map(item =>
           <button key={item.value} type="button" aria-pressed={tab === item.value} onClick={() => setTab(item.value)} className={cn('min-h-[36px] rounded-full border border-black px-[14px] text-14 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange', tab === item.value ? 'bg-black text-white' : 'text-black')}>{item.label}</button>)}
       </div>
       <div className="relative mx-[24px] mt-[14px]">

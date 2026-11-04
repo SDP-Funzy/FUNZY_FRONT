@@ -57,7 +57,6 @@ export type { PasswordChangeInput, PushSetting, AccountSettingsRepository } from
 export { createHttpAccountSettingsRepository, makeChangePassword, validatePasswordChange } from './mypage/AccountSettings';
 export { createPushSettingsStore } from './mypage/PushSettingsStore';
 export { createWithdrawAccount } from './mypage/WithdrawAccount';
-export { createFavoriteReceivedLettersStore } from './letter/FavoriteReceivedLetters';
 export { createHttpWebPushRepository, createWebPushController } from './notification/WebPush';
 export type { PushSubscriptionData, BrowserPushSubscription, PushBrowser, WebPushRepository, WebPushState } from './notification/WebPush';
 export { canDisconnectSocial, makeDisconnectSocial } from './mypage/SocialDisconnect';

@@ -15,7 +15,7 @@ export const NotificationSettingsScreen = () => {
   useEffect(() => { void store.load(); return store.cancel; }, [store]);
   const rows = [
     { key: 'push', label: '푸시 알림 수신' }, { key: 'letter', label: '편지 수신 알림' },
-    { key: 'reaction', label: '리액션 수신 알림' }, { key: 'comment', label: '댓글 수신 알림' },
+    { key: 'comment', label: '댓글 수신 알림' },
   ];
   return (
     <MypageShell title="알림설정">
