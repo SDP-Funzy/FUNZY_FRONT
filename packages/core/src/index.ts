@@ -56,3 +56,4 @@ export { createHttpFriendsRepository, normalizeFriendSearch, createFriendRequest
 export type { PasswordChangeInput, PushSetting, AccountSettingsRepository } from './mypage/AccountSettings';
 export { createHttpAccountSettingsRepository, makeChangePassword, validatePasswordChange } from './mypage/AccountSettings';
 export { createPushSettingsStore } from './mypage/PushSettingsStore';
+export { createWithdrawAccount } from './mypage/WithdrawAccount';
