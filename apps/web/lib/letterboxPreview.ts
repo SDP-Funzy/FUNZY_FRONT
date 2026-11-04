@@ -1,4 +1,4 @@
-export type LetterboxTab = 'all' | 'favorites' | 'hidden';
+export type LetterboxTab = 'all' | 'hidden';
 export type PreviewLetterPage = { id: string; content: string };
 export type PreviewLetter = { id: string; senderId: string; sender: string; date: string; image: string; favorite: boolean; hidden: boolean; to: string; pages: PreviewLetterPage[] };
 export type PreviewComment = { id: string; parentId: string | null; author: string; body: string; mine: boolean; favorite: boolean; deleted?: boolean };
@@ -37,5 +37,5 @@ export const createPreviewComments = (): Record<string, PreviewComment[]> => ({
 });
 
 export const filterLetters = (letters: PreviewLetter[], tab: LetterboxTab, query: string, date: string | null) => letters.filter(letter =>
-  (tab === 'hidden' ? letter.hidden : !letter.hidden && (tab !== 'favorites' || letter.favorite)) &&
+  (tab === 'hidden' ? letter.hidden : !letter.hidden) &&
   letter.sender.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()) && (!date || letter.date === date));

@@ -3,12 +3,12 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export type PreviewNotifications = { push: boolean; letter: boolean; reaction: boolean; comment: boolean };
+export type PreviewNotifications = { push: boolean; letter: boolean; comment: boolean };
 export type PreviewConnection = 'google' | 'naver' | 'kakao';
 
 const usePreviewValue = () => {
   const [profile, setProfile] = useState({ name: 'FunFun', loginId: 'funfun', email: 'preview@example.com' });
-  const [notifications, setNotifications] = useState<PreviewNotifications>({ push: true, letter: false, reaction: false, comment: false });
+  const [notifications, setNotifications] = useState<PreviewNotifications>({ push: true, letter: false, comment: false });
   const [connections, setConnections] = useState<Record<PreviewConnection, boolean>>({ google: false, naver: false, kakao: false });
   const [photo, setPhoto] = useState<string | null>(null);
   const [photoPending, setPhotoPending] = useState(false);
