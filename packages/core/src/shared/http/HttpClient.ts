@@ -8,6 +8,7 @@ type QueryValue = string | number | boolean | undefined;
 
 export type RequestOptions = {
   body?: unknown;
+  signal?: AbortSignal;
   query?: Record<string, QueryValue>;
   /** false 면 Authorization 헤더를 붙이지 않는다 (로그인, 회원가입 등). 기본 true */
   auth?: boolean;
@@ -100,6 +101,7 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
         // API 는 리다이렉트하지 않는다. 리다이렉트 응답이 오면 따라가지 않고 실패로 처리해서
         // 토큰이 담긴 요청이 의도하지 않은 주소로 다시 전송되는 일을 막는다
         redirect: 'error',
+        signal: options.signal,
       });
     } catch {
       throw new ApiError(0, NETWORK_ERROR_CODE, '네트워크 연결을 확인해 주세요.');
@@ -177,7 +179,7 @@ export const createHttpClient = ({ baseUrl, tokenStore, onSessionExpired }: Http
       request<T>('PUT', path, { ...options, body }),
     patch: <T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'body'>) =>
       request<T>('PATCH', path, { ...options, body }),
-    delete: <T>(path: string, options?: Omit<RequestOptions, 'body'>) => request<T>('DELETE', path, options),
+    delete: <T>(path: string, options?: RequestOptions) => request<T>('DELETE', path, options),
   };
 };
 
