@@ -4,6 +4,7 @@ import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react';
 
 import { hasSession, logout as logoutUseCase } from '@/lib/authService';
+import { webPush } from '@/lib/webPushService';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
@@ -24,6 +25,11 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
  */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [status, setStatus] = useState<AuthStatus>('loading');
+
+  useEffect(() => {
+    if (status === 'authenticated') void webPush.start();
+    else if (status === 'unauthenticated') void webPush.stop();
+  }, [status]);
 
   useEffect(() => {
     let isCancelled = false;

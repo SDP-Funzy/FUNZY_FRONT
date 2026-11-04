@@ -14,6 +14,18 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   const [store] = useState(() => createNotificationStore(createHttpNotificationRepository(apiClient)));
 
   useEffect(() => {
+    if (status !== 'authenticated') return;
+    const value = new URLSearchParams(window.location.search).get('notificationId');
+    if (!value || !/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value))) return;
+    let cancelled = false;
+    void (async () => {
+      await store.load();
+      if (!cancelled) await store.markRead(Number(value));
+    })();
+    return () => { cancelled = true; };
+  }, [status, store]);
+
+  useEffect(() => {
     if (status === 'unauthenticated') { store.reset(); return; }
     if (status !== 'authenticated') return;
     const refresh = () => { void store.refreshUnread(); };

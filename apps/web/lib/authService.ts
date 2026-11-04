@@ -1,6 +1,7 @@
 import { createHttpAuthRepository, makeHasSession, makeLogin, makeLogout } from '@sdp/core';
 
 import { apiClient, tokenStore } from '@/lib/apiClient';
+import { webPush } from '@/lib/webPushService';
 
 /**
  * 웹에서 쓰는 인증 유스케이스 조립
@@ -10,4 +11,8 @@ const authRepository = createHttpAuthRepository(apiClient);
 
 export const hasSession = makeHasSession(tokenStore);
 export const login = makeLogin({ authRepository, tokenStore });
-export const logout = makeLogout({ authRepository, tokenStore });
+const logoutSession = makeLogout({ authRepository, tokenStore });
+export const logout = async () => {
+  await webPush.stop(true);
+  await logoutSession();
+};
