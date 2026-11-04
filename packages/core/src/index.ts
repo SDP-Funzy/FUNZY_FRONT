@@ -57,3 +57,4 @@ export type { PasswordChangeInput, PushSetting, AccountSettingsRepository } from
 export { createHttpAccountSettingsRepository, makeChangePassword, validatePasswordChange } from './mypage/AccountSettings';
 export { createPushSettingsStore } from './mypage/PushSettingsStore';
 export { createWithdrawAccount } from './mypage/WithdrawAccount';
+export { createFavoriteReceivedLettersStore } from './letter/FavoriteReceivedLetters';
