@@ -5,7 +5,7 @@ export type PreviewComment = { id: string; parentId: string | null; author: stri
 
 const sampleMessage = '여행 갔을 때 샀던 거 오랜만에 보니까 갑자기 생각났어. 그때는 그냥 기념으로 하나 산 건데 지금 보니까 괜히 더 반갑고, 여행 다니면서 있었던 일들도 하나씩 생각나.\n같이 돌아다니고 사진 찍고 별 얘기 다 했던 것도 지금 생각하면 진짜 재밌었어ㅋㅋ\n이런 거 하나만 봐도 그때 분위기까지 같이 떠오르는 게 신기하다.\n또 여행가자~~';
 
-export const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+export const dateKey = (date: Date) => `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 export const parseDateKey = (value: string) => new Date(`${value}T12:00:00`);
 export const koreaToday = () => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(new Date());
 

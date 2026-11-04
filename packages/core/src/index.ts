@@ -62,3 +62,5 @@ export { createHttpWebPushRepository, createWebPushController } from './notifica
 export type { PushSubscriptionData, BrowserPushSubscription, PushBrowser, WebPushRepository, WebPushState } from './notification/WebPush';
 export { canDisconnectSocial, makeDisconnectSocial } from './mypage/SocialDisconnect';
 export type { SocialProvider, SocialDisconnectResult } from './mypage/SocialDisconnect';
+export { createHttpReceivedCalendarRepository } from './letter/ReceivedCalendar';
+export type { ReceivedCalendar, ReceivedCalendarDay } from './letter/ReceivedCalendar';

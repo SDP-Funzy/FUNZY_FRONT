@@ -11,6 +11,7 @@ import { cn } from '@/lib/cn';
 import { koreaToday, parseDateKey } from '@/lib/letterboxPreview';
 import { letterFailure, letterImageUrl } from '@/lib/letterService';
 import { ROUTES } from '@/lib/routes';
+import { loadReceivedCalendar } from '@/lib/letterCalendarService';
 
 export const ReceivedLetterListScreen = () => {
   const { store, state, tab, setTab, query, setQuery, date, setDate } = useLetterboxApi();
@@ -30,7 +31,7 @@ export const ReceivedLetterListScreen = () => {
       {([{ key: 'all', text: '전체' }, { key: 'favorites', text: '즐겨찾기' }, { key: 'hidden', text: '잠긴편지' }] as const).map(item => <button key={item.key} type="button" aria-pressed={tab === item.key} onClick={() => setTab(item.key)} className={cn('min-h-[36px] rounded-full border border-black px-[14px] text-14 font-semibold', tab === item.key ? 'bg-black text-white' : 'text-black')}>{item.text}</button>)}
     </div>
     <div className="relative mx-[24px] mt-[14px]"><button type="button" aria-label="편지 날짜 선택" aria-expanded={calendarOpen} aria-controls="letterbox-calendar" onClick={() => setCalendarOpen(open => !open)} className="rounded-control p-[10px] text-left font-en"><span className="block text-15 font-bold">{displayedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span><span className="flex items-center gap-[12px] text-[28px] font-bold">{date && date !== today ? displayedDate.toLocaleDateString('en-US', { weekday: 'short' }) : 'Today'}<Image src="/icons/calendar.svg" alt="" width={30} height={27} className="brightness-0" /></span></button>
-      {calendarOpen && <LetterboxCalendar today={today} selected={date} letters={[]} onClose={closeCalendar} onSelect={value => { setDate(value); setCalendarOpen(false); }} />}
+      {calendarOpen && <LetterboxCalendar today={today} selected={date} loadMonth={loadReceivedCalendar} onClose={closeCalendar} onSelect={value => { setDate(value); setCalendarOpen(false); }} />}
     </div>
     <div className="flex items-center justify-between px-[30px] pt-[12px] text-12 text-gray-m-400"><p role="status">{date ?? '전체 날짜'} · {state.key === key && state.loaded ? state.total + '통' : '확인 중'}</p><button type="button" onClick={() => { void store.reload(); }} className="min-h-[44px] px-[8px] underline">새로고침</button></div>
     {(state.loading || state.key !== key) && <p role="status" className="px-page py-[32px] text-center text-14 text-gray-m-400">편지를 불러오고 있어요.</p>}
