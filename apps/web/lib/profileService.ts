@@ -1,8 +1,9 @@
-import { ApiError, createHttpProfileRepository, validateProfilePhoto } from '@sdp/core';
+import { ApiError, createHttpProfileRepository, makeDisconnectSocial, validateProfilePhoto } from '@sdp/core';
 import type { AccountProvider, ProfileImageUpload, ProfilePhoto } from '@sdp/core';
 import { apiClient } from '@/lib/apiClient';
 import { letterImageUrl } from '@/lib/letterService';
 export const profileRepository = createHttpProfileRepository(apiClient);
+export const disconnectSocialAccount = makeDisconnectSocial(profileRepository);
 export const accountProviderLabel: Record<AccountProvider, string> = { LOCAL: '이메일', GOOGLE: '구글', NAVER: '네이버', KAKAO: '카카오' };
 export const validateProfileImageFile = async (file: File) => {
   validateProfilePhoto({ type: file.type, size: file.size, body: file });

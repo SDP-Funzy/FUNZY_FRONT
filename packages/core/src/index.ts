@@ -60,3 +60,5 @@ export { createWithdrawAccount } from './mypage/WithdrawAccount';
 export { createFavoriteReceivedLettersStore } from './letter/FavoriteReceivedLetters';
 export { createHttpWebPushRepository, createWebPushController } from './notification/WebPush';
 export type { PushSubscriptionData, BrowserPushSubscription, PushBrowser, WebPushRepository, WebPushState } from './notification/WebPush';
+export { canDisconnectSocial, makeDisconnectSocial } from './mypage/SocialDisconnect';
+export type { SocialProvider, SocialDisconnectResult } from './mypage/SocialDisconnect';

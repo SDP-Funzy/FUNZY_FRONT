@@ -37,10 +37,14 @@ export const createHttpProfileRepository = (http: HttpClient) => ({
     if (!imageKey.trim()) throw new ApiError(400, 'COMMON_002', '업로드한 사진을 확인해 주세요.');
     return profileResponse(await http.post<MemberProfile>('/api/mypage/profile/image/complete', { imageKey }));
   },
-  connected: async (): Promise<ConnectedAccounts> => {
-    const data = await http.get<ConnectedAccounts>('/api/mypage/account/connected');
+  connected: async (signal?: AbortSignal): Promise<ConnectedAccounts> => {
+    const data = await http.get<ConnectedAccounts>('/api/mypage/account/connected', { signal });
     if (!data || typeof data.hasPassword !== 'boolean' || !Array.isArray(data.connectedProviders) || data.connectedProviders.some(provider => !ACCOUNT_PROVIDERS.includes(provider))) throw invalid();
     return data;
+  },
+  disconnectSocial: async (provider: Exclude<AccountProvider, 'LOCAL'>, signal?: AbortSignal): Promise<void> => {
+    if (!['GOOGLE', 'NAVER', 'KAKAO'].includes(provider)) throw new ApiError(400, 'COMMON_002', '해제할 소셜 계정을 확인해 주세요.');
+    await http.delete(`/api/mypage/account/connections/${provider}`, { signal });
   },
 });
 export type ProfileRepository = ReturnType<typeof createHttpProfileRepository>;
